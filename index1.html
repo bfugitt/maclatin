@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MacLatin v5.1</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-color: #888888; /* Desktop pattern color */
+            --window-bg: #ffffff;
+            --border-color: #000000;
+            --highlight: #000000;
+            --text-color: #000000;
+        }
+
+        /* --- Mac System 6 Aesthetic --- */
+        body {
+            font-family: 'VT323', monospace;
+            background-color: var(--bg-color);
+            background-image: 
+                linear-gradient(45deg, #aaa 25%, transparent 25%, transparent 75%, #aaa 75%, #aaa),
+                linear-gradient(45deg, #aaa 25%, transparent 25%, transparent 75%, #aaa 75%, #aaa);
+            background-size: 4px 4px;
+            background-position: 0 0, 2px 2px;
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh; 
+            height: 100dvh;
+            overflow: hidden; 
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        #main-window {
+            width: 640px;
+            max-width: 95vw;
+            height: 480px;
+            max-height: 90vh;
+            background: var(--window-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 4px;
+            box-shadow: 4px 4px 0px rgba(0,0,0,0.5);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* Title Bar */
+        .title-bar {
+            background: repeating-linear-gradient(
+                90deg,
+                var(--border-color),
+                var(--border-color) 1px,
+                var(--window-bg) 1px,
+                var(--window-bg) 2px
+            );
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-bottom: 2px solid var(--border-color);
+            padding: 0 4px;
+        }
+
+        .title-text {
+            background: var(--window-bg);
+            padding: 0 10px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border: 1px solid var(--border-color);
+        }
+
+        /* Main Content Area */
+        #content {
+            flex: 1;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        /* --- Menu & Setup --- */
+        #menu-view {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            text-align: center;
+            height: 100%;
+        }
+
+        .section-box {
+            border: 1px solid var(--border-color);
+            padding: 10px;
+            position: relative;
+            margin-top: 5px;
+        }
+
+        .section-label {
+            position: absolute;
+            top: -10px;
+            left: 10px;
+            background: var(--window-bg);
+            padding: 0 5px;
+            font-weight: bold;
+        }
+
+        /* Controls */
+        .control-group {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 5px;
+        }
+
+        select, button {
+            font-family: 'VT323', monospace;
+            font-size: 1.2rem;
+            background: var(--window-bg);
+            border: 1px solid var(--border-color);
+            box-shadow: 2px 2px 0px var(--border-color);
+            cursor: pointer;
+            padding: 2px 8px;
+        }
+
+        select:active, button:active {
+            box-shadow: none;
+            transform: translate(2px, 2px);
+        }
+
+        /* Game Buttons Grid */
+        .game-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 5px;
+        }
+
+        .game-btn {
+            padding: 15px;
+            font-size: 1.4rem;
+            text-transform: uppercase;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+        
+        .game-btn span {
+            font-size: 0.9rem;
+            text-transform: none;
+            opacity: 0.7;
+        }
+
+        /* Stats Bar */
+        #stats-bar {
+            border-top: 2px solid var(--border-color);
+            padding: 5px 10px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 1.2rem;
+            background: #eee;
+        }
+
+        /* --- Game Views --- */
+        .game-view {
+            display: none; /* Hidden by default */
+            flex-direction: column;
+            height: 100%;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .game-view.active {
+            display: flex;
+        }
+
+        /* Flashcard Style */
+        .card {
+            border: 2px solid var(--border-color);
+            width: 80%;
+            height: 180px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-size: 2.5rem;
+            box-shadow: 4px 4px 0px #aaa;
+            cursor: pointer;
+            background: #fff;
+            position: relative;
+            text-align: center;
+            padding: 10px;
+        }
+
+        .card-hint {
+            font-size: 1rem;
+            position: absolute;
+            bottom: 5px;
+            color: #666;
+        }
+
+        /* Inputs */
+        input[type="text"] {
+            font-family: 'VT323', monospace;
+            font-size: 1.5rem;
+            border: 1px solid var(--border-color);
+            padding: 5px;
+            width: 80%;
+            text-align: center;
+            outline: none;
+            box-shadow: inset 2px 2px 2px #ccc;
+        }
+
+        /* Builder Mode */
+        #build-area {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+            margin: 10px 0;
+            min-height: 50px;
+        }
+
+        .word-brick {
+            border: 1px solid black;
+            padding: 5px 10px;
+            cursor: pointer;
+            background: white;
+            box-shadow: 2px 2px 0 black;
+        }
+        .word-brick:active {
+            box-shadow: none;
+            transform: translate(2px, 2px);
+        }
+        .word-brick.used {
+            opacity: 0.3;
+            pointer-events: none;
+            box-shadow: none;
+            border: 1px dashed #999;
+        }
+
+        #build-target {
+            width: 90%;
+            min-height: 60px;
+            border: 2px solid black;
+            background: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: inset 3px 3px 0 #ccc;
+            margin-bottom: 10px;
+            font-size: 1.5rem;
+        }
+
+        .word-in-doc {
+            cursor: pointer;
+            border-bottom: 1px dotted black;
+        }
+        .word-in-doc:hover {
+            background: #eee;
+        }
+
+        /* Sorter Mode (Gender/POS) */
+        .bucket-container {
+            display: flex;
+            width: 100%;
+            justify-content: space-around;
+            margin-top: 20px;
+        }
+
+        .bucket {
+            border: 2px solid black;
+            width: 30%; /* Dynamic based on count */
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            cursor: pointer;
+            box-shadow: 3px 3px 0 #ccc;
+            transition: background 0.1s;
+        }
+        .bucket:active {
+            background: #eee;
+        }
+        .bucket h3 { margin: 0; font-size: 1.5rem; }
+
+        #sorter-word {
+            font-size: 2.5rem;
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px dashed black;
+        }
+
+        /* Feedback */
+        .feedback {
+            height: 30px;
+            font-size: 1.2rem;
+            margin-top: 5px;
+        }
+        .correct { color: #000; font-weight: bold; text-decoration: underline; }
+        .incorrect { color: #000; font-style: italic; }
+
+        .back-btn {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 100;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+    </style>
+</head>
+<body>
+
+<div id="main-window">
+    <div class="title-bar">
+        <div class="title-text">MacLatin v5.1</div>
+    </div>
+
+    <div id="content">
+        <!-- MENU VIEW -->
+        <div id="menu-view">
+            <div style="font-size: 1.5rem; margin-top:10px;">SALVETE!</div>
+            
+            <!-- Setup Area -->
+            <div class="section-box" id="setup-area">
+                <span class="section-label">Settings</span>
+                
+                <div class="control-group">
+                    <label>From Ch:</label>
+                    <select id="chapter-start"></select>
+                    <label>To Ch:</label>
+                    <select id="chapter-end"></select>
+                </div>
+
+                <div class="control-group">
+                    <label>Display:</label>
+                    <select id="display-mode">
+                        <option value="lat">Latin First</option>
+                        <option value="eng">English First</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Game Selection Area (Moved Below) -->
+            <div class="section-box">
+                <span class="section-label">Select Activity</span>
+                <div class="game-grid">
+                    <button class="game-btn" onclick="initGame('flashcards')">
+                        Flashcards
+                        <span>Review</span>
+                    </button>
+                    <button class="game-btn" onclick="initGame('input')">
+                        Type It
+                        <span>Spelling</span>
+                    </button>
+                    <button class="game-btn" onclick="initGame('builder')">
+                        Builder
+                        <span>Sentences</span>
+                    </button>
+                    <button class="game-btn" onclick="initGame('sorter-gen')">
+                        Gender Sort
+                        <span>M / F / N</span>
+                    </button>
+                    <button class="game-btn" onclick="initGame('sorter-pos')" style="grid-column: span 2">
+                        P.O.S. Sort
+                        <span>Noun / Verb / Adj</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- FLASHCARD GAME -->
+        <div id="game-flashcards" class="game-view">
+            <button class="back-btn" onclick="returnToMenu()">&lt;</button>
+            <div style="flex:1; display:flex; align-items:center; justify-content:center; width:100%;">
+                <div class="card" onclick="flipCard()">
+                    <div id="fc-content">...</div>
+                    <div class="card-hint">(Click to flip)</div>
+                </div>
+            </div>
+            <div class="control-group" style="margin-bottom: 20px;">
+                <button onclick="nextCard(false)">Mark Incorrect</button>
+                <button onclick="nextCard(true)">Mark Correct</button>
+            </div>
+        </div>
+
+        <!-- INPUT GAME -->
+        <div id="game-input" class="game-view">
+            <button class="back-btn" onclick="returnToMenu()">&lt;</button>
+            <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; width:100%;">
+                <div style="font-size: 2rem; margin-bottom: 20px;" id="input-prompt">Prompt</div>
+                <input type="text" id="user-input" autocomplete="off" placeholder="Type answer...">
+                <div id="input-feedback" class="feedback"></div>
+            </div>
+            <div style="margin-bottom: 20px;">
+                <button onclick="checkInput()">Check Answer</button>
+            </div>
+        </div>
+
+        <!-- BUILDER GAME -->
+        <div id="game-builder" class="game-view">
+            <button class="back-btn" onclick="returnToMenu()">&lt;</button>
+            <div style="width:100%; margin-top: 40px;">
+                <div style="text-align:center; font-size: 1.3rem; margin-bottom:10px;">Construct:</div>
+                <div style="text-align:center; font-size: 1.8rem; margin-bottom:20px; font-weight:bold;" id="build-prompt">...</div>
+                
+                <div style="display:flex; justify-content:center;">
+                    <div id="build-target"></div>
+                </div>
+
+                <div id="build-area"></div>
+                <div id="build-feedback" class="feedback" style="text-align:center;"></div>
+            </div>
+            <div style="margin-bottom: 20px;">
+                <button onclick="checkSentence()">Check Construction</button>
+                <button onclick="skipBuilder()">Skip</button>
+            </div>
+        </div>
+
+        <!-- SORTER GAME (Generic for Gender & POS) -->
+        <div id="game-sorter" class="game-view">
+            <button class="back-btn" onclick="returnToMenu()">&lt;</button>
+            <div style="margin-top: 40px; text-align: center; width: 100%;">
+                <div id="sorter-title" style="margin-bottom: 10px;">Sort by...</div>
+                <div id="sorter-word">WORD</div>
+                <div id="sorter-feedback" class="feedback"></div>
+            </div>
+            
+            <div id="sorter-buckets" class="bucket-container" style="margin-bottom: 20px;">
+                <!-- Buckets injected via JS -->
+            </div>
+        </div>
+
+    </div>
+
+    <div id="stats-bar">
+        <span>XP: <span id="xp-display">0</span></span>
+        <span id="level-display">Novice</span>
+    </div>
+</div>
+
+<script>
+    // --- DATABASE ---
+    // Added 'pos' field: n=noun, v=verb, adj=adjective, prep=preposition, adv=adverb, conj=conjunction, int=interjection
+    const vocabDB = [
+        // Ch 1
+        { lat: "puella", eng: "girl", gen: "f", pos: "n", ch: 1 },
+        { lat: "villa", eng: "country house", gen: "f", pos: "n", ch: 1 },
+        { lat: "habitat", eng: "lives", gen: "x", pos: "v", ch: 1 },
+        { lat: "sedet", eng: "sits", gen: "x", pos: "v", ch: 1 },
+        { lat: "legit", eng: "reads", gen: "x", pos: "v", ch: 1 },
+        { lat: "scribit", eng: "writes", gen: "x", pos: "v", ch: 1 },
+        { lat: "et", eng: "and", gen: "x", pos: "conj", ch: 1 },
+        { lat: "dum", eng: "while", gen: "x", pos: "conj", ch: 1 },
+        
+        // Ch 2
+        { lat: "puer", eng: "boy", gen: "m", pos: "n", ch: 2 },
+        { lat: "hortus", eng: "garden", gen: "m", pos: "n", ch: 2 },
+        { lat: "clamant", eng: "they shout", gen: "x", pos: "v", ch: 2 },
+        { lat: "rident", eng: "they laugh", gen: "x", pos: "v", ch: 2 },
+        { lat: "vir", eng: "man", gen: "m", pos: "n", ch: 2 },
+        { lat: "servus", eng: "slave", gen: "m", pos: "n", ch: 2 },
+        { lat: "iratus", eng: "angry", gen: "m", pos: "adj", ch: 2 },
+        { lat: "piscina", eng: "fishpond", gen: "f", pos: "n", ch: 2 },
+
+        // Ch 3
+        { lat: "in", eng: "in/on", gen: "x", pos: "prep", ch: 3 },
+        { lat: "laborat", eng: "works", gen: "x", pos: "v", ch: 3 },
+        { lat: "solus", eng: "alone", gen: "m", pos: "adj", ch: 3 },
+        { lat: "cadit", eng: "falls", gen: "x", pos: "v", ch: 3 },
+        { lat: "subito", eng: "suddenly", gen: "x", pos: "adv", ch: 3 },
+        
+        // Ch 4
+        { lat: "pecunia", eng: "money", gen: "f", pos: "n", ch: 4 },
+        { lat: "habet", eng: "has", gen: "x", pos: "v", ch: 4 },
+        { lat: "numerat", eng: "counts", gen: "x", pos: "v", ch: 4 },
+        { lat: "adest", eng: "is here", gen: "x", pos: "v", ch: 4 },
+        { lat: "abest", eng: "is absent", gen: "x", pos: "v", ch: 4 },
+        { lat: "salutat", eng: "greets", gen: "x", pos: "v", ch: 4 },
+
+        // Ch 5
+        { lat: "agricola", eng: "farmer", gen: "m", pos: "n", ch: 5 },
+        { lat: "femina", eng: "woman", gen: "f", pos: "n", ch: 5 },
+        { lat: "petit", eng: "attacks/seeks", gen: "x", pos: "v", ch: 5 },
+        { lat: "audit", eng: "hears", gen: "x", pos: "v", ch: 5 },
+        { lat: "multus", eng: "much/many", gen: "m", pos: "adj", ch: 5 },
+        { lat: "spectat", eng: "watches", gen: "x", pos: "v", ch: 5 }
+    ];
+
+    // Sentence Templates for Builder Mode
+    const sentencesDB = [
+        { lat: ["puella", "in", "villa", "sedet"], eng: "The girl sits in the country house", ch: 1 },
+        { lat: ["puer", "in", "horto", "scribit"], eng: "The boy writes in the garden", ch: 2 },
+        { lat: ["servus", "laborat"], eng: "The slave is working", ch: 2 },
+        { lat: ["vir", "puerum", "audit"], eng: "The man hears the boy", ch: 5 },
+        { lat: ["femina", "ad", "villam", "venit"], eng: "The woman comes to the house", ch: 3 }
+    ];
+
+    // --- STATE MANAGEMENT ---
+    let state = {
+        xp: 0,
+        level: 1,
+        gameMode: null,
+        deck: [], // Current active words based on chapter settings
+        index: 0,
+        missed: [],
+        flipped: false,
+        sorterMode: 'gen', // 'gen' or 'pos'
+        buildCurrent: null,
+        buildUserOrder: []
+    };
+
+    // --- INITIALIZATION ---
+    window.onload = function() {
+        populateChapterSelects();
+        loadXP();
+    };
+
+    function populateChapterSelects() {
+        // Find unique chapters
+        const chapters = [...new Set(vocabDB.map(i => i.ch))].sort((a,b)=>a-b);
+        const startSel = document.getElementById('chapter-start');
+        const endSel = document.getElementById('chapter-end');
+        
+        chapters.forEach(c => {
+            let opt1 = new Option(c, c);
+            let opt2 = new Option(c, c);
+            startSel.add(opt1);
+            endSel.add(opt2);
+        });
+
+        // Defaults
+        startSel.value = Math.min(...chapters);
+        endSel.value = Math.max(...chapters);
+
+        // Listener to ensure Start <= End
+        startSel.addEventListener('change', () => {
+            if(parseInt(startSel.value) > parseInt(endSel.value)) {
+                endSel.value = startSel.value;
+            }
+        });
+        endSel.addEventListener('change', () => {
+            if(parseInt(endSel.value) < parseInt(startSel.value)) {
+                startSel.value = endSel.value;
+            }
+        });
+    }
+
+    // --- GAME ENGINE ---
+
+    function filterVocab() {
+        const start = parseInt(document.getElementById('chapter-start').value);
+        const end = parseInt(document.getElementById('chapter-end').value);
+        
+        return vocabDB.filter(w => w.ch >= start && w.ch <= end);
+    }
+
+    function initGame(mode) {
+        state.gameMode = mode;
+        const deck = filterVocab();
+        
+        if(deck.length === 0) {
+            alert("No words found in this chapter range!");
+            return;
+        }
+
+        // Shuffle
+        state.deck = deck.sort(() => Math.random() - 0.5);
+        state.index = 0;
+        state.missed = [];
+
+        // UI Switch
+        document.getElementById('menu-view').style.display = 'none';
+        
+        // Hide all games
+        document.querySelectorAll('.game-view').forEach(el => el.classList.remove('active'));
+
+        if (mode === 'flashcards') {
+            document.getElementById('game-flashcards').classList.add('active');
+            loadFlashcard();
+        } else if (mode === 'input') {
+            document.getElementById('game-input').classList.add('active');
+            loadInputRound();
+        } else if (mode === 'builder') {
+            document.getElementById('game-builder').classList.add('active');
+            initBuilderDeck();
+        } else if (mode.startsWith('sorter')) {
+            document.getElementById('game-sorter').classList.add('active');
+            state.sorterMode = mode === 'sorter-gen' ? 'gen' : 'pos';
+            initSorter();
+        }
+    }
+
+    function returnToMenu() {
+        document.querySelectorAll('.game-view').forEach(el => el.classList.remove('active'));
+        document.getElementById('menu-view').style.display = 'flex';
+        state.gameMode = null;
+    }
+
+    // --- FLASHCARDS ---
+    function loadFlashcard() {
+        if(state.index >= state.deck.length) {
+            finishGame();
+            return;
+        }
+        state.flipped = false;
+        const word = state.deck[state.index];
+        const displayMode = document.getElementById('display-mode').value;
+        
+        // Show front
+        document.getElementById('fc-content').textContent = displayMode === 'lat' ? word.lat : word.eng;
+        document.getElementById('fc-content').style.fontWeight = 'normal';
+    }
+
+    function flipCard() {
+        state.flipped = !state.flipped;
+        const word = state.deck[state.index];
+        const displayMode = document.getElementById('display-mode').value;
+        const content = document.getElementById('fc-content');
+
+        if(state.flipped) {
+            // Show Back
+            content.textContent = displayMode === 'lat' ? word.eng : word.lat;
+            content.style.fontWeight = 'bold';
+        } else {
+            // Show Front
+            content.textContent = displayMode === 'lat' ? word.lat : word.eng;
+            content.style.fontWeight = 'normal';
+        }
+    }
+
+    function nextCard(correct) {
+        if(correct) {
+            addXP(10);
+        } else {
+            state.missed.push(state.deck[state.index]);
+        }
+        state.index++;
+        loadFlashcard();
+    }
+
+    // --- INPUT GAME ---
+    function loadInputRound() {
+        if(state.index >= state.deck.length) {
+            finishGame();
+            return;
+        }
+        const word = state.deck[state.index];
+        const displayMode = document.getElementById('display-mode').value;
+        
+        // In input mode, we always prompt with the opposite of what they need to type
+        // If display is Lat, prompt Eng, type Lat.
+        const prompt = displayMode === 'lat' ? word.eng : word.lat;
+        
+        document.getElementById('input-prompt').textContent = prompt;
+        document.getElementById('user-input').value = "";
+        document.getElementById('user-input').focus();
+        document.getElementById('input-feedback').innerHTML = "";
+    }
+
+    function checkInput() {
+        const input = document.getElementById('user-input').value.trim().toLowerCase();
+        const word = state.deck[state.index];
+        const displayMode = document.getElementById('display-mode').value;
+        const correctAns = displayMode === 'lat' ? word.lat : word.eng;
+
+        if(input === correctAns.toLowerCase()) {
+            addXP(15);
+            document.getElementById('input-feedback').innerHTML = "<span class='correct'>Correct!</span>";
+            setTimeout(() => {
+                state.index++;
+                loadInputRound();
+            }, 800);
+        } else {
+            document.getElementById('input-feedback').innerHTML = `<span class='incorrect'>Expected: ${correctAns}</span>`;
+            state.missed.push(word);
+            setTimeout(() => {
+                state.index++;
+                loadInputRound();
+            }, 2000);
+        }
+    }
+
+    // --- BUILDER (SENTENCE) ---
+    function initBuilderDeck() {
+        const start = parseInt(document.getElementById('chapter-start').value);
+        const end = parseInt(document.getElementById('chapter-end').value);
+        // Filter sentences
+        const sents = sentencesDB.filter(s => s.ch >= start && s.ch <= end);
+        if(sents.length === 0) {
+            alert("No sentences available for these chapters.");
+            returnToMenu();
+            return;
+        }
+        state.deck = sents.sort(() => Math.random() - 0.5);
+        state.index = 0;
+        loadBuilderRound();
+    }
+
+    function loadBuilderRound() {
+        if(state.index >= state.deck.length) {
+            finishGame();
+            return;
+        }
+        state.buildCurrent = state.deck[state.index];
+        state.buildUserOrder = [];
+        
+        document.getElementById('build-prompt').textContent = state.buildCurrent.eng;
+        document.getElementById('build-target').innerHTML = ""; // Clear target
+        document.getElementById('build-feedback').textContent = "";
+
+        // Scramble words
+        const scrambled = [...state.buildCurrent.lat].sort(() => Math.random() - 0.5);
+        const area = document.getElementById('build-area');
+        area.innerHTML = "";
+        
+        scrambled.forEach(w => {
+            const brick = document.createElement('div');
+            brick.className = 'word-brick';
+            brick.textContent = w;
+            brick.id = `file-${w}`;
+            brick.onclick = () => addWordToDoc(w);
+            area.appendChild(brick);
+        });
+    }
+
+    function addWordToDoc(word) {
+        if(state.buildUserOrder.includes(word)) return; // Prevent doubles if simplified
+        state.buildUserOrder.push(word);
+        
+        const srcEl = document.getElementById(`file-${word}`);
+        if(srcEl) srcEl.classList.add('used');
+
+        const targetBox = document.getElementById('build-target');
+        const wordSpan = document.createElement('span');
+        wordSpan.className = 'word-in-doc';
+        wordSpan.textContent = word;
+        wordSpan.onclick = () => removeWordFromDoc(word, wordSpan);
+        
+        targetBox.appendChild(wordSpan);
+    }
+
+    function removeWordFromDoc(word, el) {
+        state.buildUserOrder = state.buildUserOrder.filter(w => w !== word);
+        el.remove();
+        const srcEl = document.getElementById(`file-${word}`);
+        if(srcEl) srcEl.classList.remove('used');
+    }
+
+    function checkSentence() {
+        const correct = state.buildCurrent.lat;
+        // Compare arrays
+        const isCorrect = JSON.stringify(state.buildUserOrder) === JSON.stringify(correct);
+        
+        if (isCorrect) {
+            addXP(25);
+            document.getElementById('build-feedback').innerHTML = "<span class='correct'>Perfect!</span>";
+            setTimeout(() => { state.index++; loadBuilderRound(); }, 1000);
+        } else {
+            document.getElementById('build-feedback').innerHTML = `<span class='incorrect'>Try again!</span> Expected: ${correct.join(' ')}`;
+            setTimeout(() => { state.index++; loadBuilderRound(); }, 2500);
+        }
+    }
+
+    function skipBuilder() {
+        state.index++;
+        loadBuilderRound();
+    }
+
+    // --- SORTER (GENERIC: Gender or POS) ---
+    function initSorter() {
+        // Setup Buckets
+        const bucketContainer = document.getElementById('sorter-buckets');
+        bucketContainer.innerHTML = "";
+        
+        let categories = [];
+
+        if (state.sorterMode === 'gen') {
+            document.getElementById('sorter-title').textContent = "Sort by Gender";
+            categories = [
+                { id: 'm', label: 'Masc.' },
+                { id: 'f', label: 'Fem.' },
+                { id: 'n', label: 'Neut.' }
+            ];
+            // Filter deck to only include words with gender (exclude verbs/conj/etc if they are marked x)
+            state.deck = state.deck.filter(w => w.gen !== 'x');
+        } else {
+            document.getElementById('sorter-title').textContent = "Sort by Part of Speech";
+            categories = [
+                { id: 'n', label: 'Noun' },
+                { id: 'v', label: 'Verb' },
+                { id: 'adj', label: 'Adj.' },
+                { id: 'other', label: 'Other' } // Catch-all for prep, conj, adv
+            ];
+            // No filter needed, everything has a POS
+        }
+
+        if(state.deck.length === 0) {
+            alert("No sortable words in this chapter range!");
+            returnToMenu();
+            return;
+        }
+
+        categories.forEach(cat => {
+            const b = document.createElement('div');
+            b.className = 'bucket';
+            b.innerHTML = `<h3>${cat.label}</h3>`;
+            b.onclick = () => checkSorter(cat.id);
+            // Adjust width based on count
+            b.style.width = (90 / categories.length) + "%";
+            bucketContainer.appendChild(b);
+        });
+
+        loadSorterRound();
+    }
+
+    function loadSorterRound() {
+        if(state.index >= state.deck.length) {
+            finishGame();
+            return;
+        }
+        const word = state.deck[state.index];
+        document.getElementById('sorter-word').textContent = word.lat;
+        document.getElementById('sorter-feedback').textContent = "";
+    }
+
+    function checkSorter(selectedId) {
+        const word = state.deck[state.index];
+        let correctId = "";
+
+        if (state.sorterMode === 'gen') {
+            correctId = word.gen;
+        } else {
+            // POS mapping
+            if (['n','v','adj'].includes(word.pos)) {
+                correctId = word.pos;
+            } else {
+                correctId = 'other';
+            }
+        }
+
+        if (selectedId === correctId) {
+            addXP(5);
+            document.getElementById('sorter-feedback').innerHTML = "<span class='correct'>Good!</span>";
+            setTimeout(() => {
+                state.index++;
+                loadSorterRound();
+            }, 500);
+        } else {
+            document.getElementById('sorter-feedback').innerHTML = "<span class='incorrect'>Oops!</span>";
+            // Shake effect or delay
+            setTimeout(() => {
+                document.getElementById('sorter-feedback').textContent = "";
+            }, 800);
+        }
+    }
+
+
+    // --- UTILS ---
+    function finishGame() {
+        alert(`Round Complete! You earned XP.`);
+        returnToMenu();
+    }
+
+    function addXP(amount) {
+        state.xp += amount;
+        if(state.xp > state.level * 100) {
+            state.level++;
+            alert("LEVEL UP! You are now Level " + state.level);
+        }
+        updateStats();
+        saveXP();
+    }
+
+    function updateStats() {
+        document.getElementById('xp-display').textContent = state.xp;
+        
+        let title = "Novice";
+        if(state.level > 2) title = "Discipulus";
+        if(state.level > 5) title = "Magister";
+        if(state.level > 10) title = "Imperator";
+        
+        document.getElementById('level-display').textContent = `${title} (Lvl ${state.level})`;
+    }
+
+    function saveXP() {
+        localStorage.setItem('maclatin_xp', state.xp);
+        localStorage.setItem('maclatin_lvl', state.level);
+    }
+
+    function loadXP() {
+        const savedXP = localStorage.getItem('maclatin_xp');
+        const savedLvl = localStorage.getItem('maclatin_lvl');
+        if(savedXP) state.xp = parseInt(savedXP);
+        if(savedLvl) state.level = parseInt(savedLvl);
+        updateStats();
+    }
+
+    // Enter key support for input game
+    document.getElementById('user-input').addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') {
+            checkInput();
+        }
+    });
+
+</script>
+
+</body>
+</html>
