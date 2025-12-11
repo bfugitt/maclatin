@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MacLatin v5.0</title>
+    <title>MacLatin v6.3</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -11,7 +11,7 @@
 
     <style>
         :root {
-            --bg-color: #f0f0f0;
+            --bg-color: #888888;
             --window-bg: #ffffff;
             --border-color: #000000;
             --highlight: #000000;
@@ -22,6 +22,11 @@
         body {
             font-family: 'VT323', monospace;
             background-color: var(--bg-color);
+            background-image: 
+                linear-gradient(45deg, #aaa 25%, transparent 25%, transparent 75%, #aaa 75%, #aaa),
+                linear-gradient(45deg, #aaa 25%, transparent 25%, transparent 75%, #aaa 75%, #aaa);
+            background-size: 4px 4px;
+            background-position: 0 0, 2px 2px;
             color: var(--text-color);
             margin: 0;
             padding: 0;
@@ -29,1297 +34,1600 @@
             justify-content: center;
             align-items: center;
             height: 100vh; 
-            height: 100dvh; /* Dynamic viewport height for iOS */
+            height: 100dvh;
             overflow: hidden; 
             box-sizing: border-box;
-            background-image: 
-                linear-gradient(45deg, #ccc 25%, transparent 25%), 
-                linear-gradient(-45deg, #ccc 25%, transparent 25%), 
-                linear-gradient(45deg, transparent 75%, #ccc 75%), 
-                linear-gradient(-45deg, transparent 75%, #ccc 75%);
-            background-size: 4px 4px;
+            user-select: none;
         }
 
-        .window {
+        #main-window {
+            width: 640px;
+            max-width: 95vw;
+            height: 600px; /* Increased height to prevent scrolling */
+            max-height: 95vh;
             background: var(--window-bg);
             border: 2px solid var(--border-color);
-            box-shadow: 4px 4px 0px rgba(0,0,0,0.2);
-            width: 95%;
-            max-width: 600px;
-            max-height: 98dvh; 
+            border-radius: 4px;
+            box-shadow: 4px 4px 0px rgba(0,0,0,0.5);
             display: flex;
             flex-direction: column;
             position: relative;
         }
 
+        /* Title Bar */
         .title-bar {
             background: repeating-linear-gradient(
-                0deg,
-                #fff,
-                #fff 2px,
-                #000 2px,
-                #000 4px
+                90deg,
+                var(--border-color),
+                var(--border-color) 1px,
+                var(--window-bg) 1px,
+                var(--window-bg) 2px
             );
-            height: 30px;
-            min-height: 30px;
-            border-bottom: 2px solid var(--border-color);
+            height: 24px;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 0 10px;
-            flex-shrink: 0;
+            border-bottom: 2px solid var(--border-color);
+            padding: 0 4px;
         }
 
-        .title-box {
-            background: #fff;
+        .title-text {
+            background: var(--window-bg);
             padding: 0 10px;
-            font-weight: bold;
             font-size: 1.2rem;
-            border-left: 2px solid #000;
-            border-right: 2px solid #000;
+            font-weight: bold;
+            border: 1px solid var(--border-color);
         }
 
-        .content {
-            padding: 15px;
+        /* Main Content Area */
+        #content {
+            flex: 1;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        /* --- Menu & Setup --- */
+        #menu-view {
             display: flex;
             flex-direction: column;
             gap: 10px;
-            overflow-y: auto; 
-            flex: 1;
+            text-align: center;
+            height: 100%;
         }
 
-        /* --- Controls & Inputs --- */
+        .section-box {
+            border: 1px solid var(--border-color);
+            padding: 8px;
+            position: relative;
+            margin-top: 5px;
+        }
+
+        .section-label {
+            position: absolute;
+            top: -10px;
+            left: 10px;
+            background: var(--window-bg);
+            padding: 0 5px;
+            font-weight: bold;
+        }
+
+        /* Controls */
         .control-group {
             display: flex;
-            flex-direction: column;
-            gap: 2px;
-            margin-bottom: 8px;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 5px;
         }
 
-        label {
-            font-weight: bold;
-            text-transform: uppercase;
-            font-size: 0.9rem;
-        }
-
-        select, input[type="text"] {
+        select, button {
             font-family: 'VT323', monospace;
-            font-size: 1.1rem;
-            padding: 6px;
-            border: 2px solid #000;
-            background: #fff;
-            border-radius: 0;
-            width: 100%;
-            box-sizing: border-box;
-        }
-
-        /* --- Buttons --- */
-        .btn {
-            font-family: 'VT323', monospace;
-            background: #fff;
-            border: 2px solid #000;
-            padding: 8px 10px;
-            font-size: 1.3rem;
+            font-size: 1.2rem;
+            background: var(--window-bg);
+            border: 1px solid var(--border-color);
+            box-shadow: 2px 2px 0px var(--border-color);
             cursor: pointer;
-            box-shadow: 2px 2px 0 #000;
-            text-align: center;
-            transition: transform 0.1s, box-shadow 0.1s;
-            touch-action: manipulation;
+            padding: 2px 8px;
         }
 
-        .btn:active {
+        select:active, button:active {
+            box-shadow: none;
             transform: translate(2px, 2px);
-            box-shadow: 0 0 0 #000;
-            background: #000;
-            color: #fff;
         }
 
-        .btn-block { width: 100%; }
-        .btn-small { font-size: 1rem; padding: 5px 10px; }
-        .btn-danger { border: 2px solid #ff0000; color: #ff0000; font-size: 1rem; }
-        .btn-danger:active { background: #ff0000; color: #fff; }
-
-        .btn.selected {
-            background: #000;
-            color: #fff;
-            box-shadow: inset 2px 2px 0 #555;
+        /* Game Buttons Grid */
+        .game-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 5px;
         }
 
-        /* --- Game Screens --- */
-        .screen {
-            display: none;
-            height: 100%;
+        .game-btn {
+            padding: 10px;
+            font-size: 1.3rem;
+            text-transform: uppercase;
+            display: flex;
             flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 2px;
         }
-
-        .screen.active { display: flex; }
+        
+        .game-btn span {
+            font-size: 0.9rem;
+            text-transform: none;
+            opacity: 0.7;
+        }
 
         /* Stats Bar */
-        .stats-bar {
+        #stats-bar {
+            border-top: 2px solid var(--border-color);
+            padding: 5px 10px;
             display: flex;
             justify-content: space-between;
-            border-bottom: 1px dashed #000;
-            padding-bottom: 5px;
-            margin-bottom: 10px;
-            flex-shrink: 0;
+            font-size: 1.2rem;
+            background: #eee;
         }
 
-        /* Activity Selectors */
-        .activity-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-            margin-bottom: 10px;
-        }
-        .activity-btn {
-            padding: 8px 5px;
-            font-size: 1.1rem;
-            display: flex;
-            flex-direction: row; 
+        /* --- Game Views --- */
+        .game-view {
+            display: none; /* Hidden by default */
+            flex-direction: column;
+            height: 100%;
             align-items: center;
-            justify-content: center;
-            gap: 8px;
+            justify-content: space-between;
         }
 
-        /* --- Specific Game UIs --- */
-
-        /* Quiz */
-        .question-box { text-align: center; margin: 10px 0; flex-shrink: 0; }
-        .question-word { font-size: 2.2rem; font-weight: bold; display: block; margin-bottom: 5px; line-height: 1; }
-        .question-context { font-size: 1rem; font-style: italic; color: #444; }
-        .choices-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-
-        /* MacMan */
-        .macman-container { display: flex; flex-direction: column; align-items: center; gap: 10px; flex-shrink: 0; }
-        #macman-canvas { border: 2px solid #000; background: #fff; width: 120px; height: 120px; }
-        .word-display { font-size: 1.8rem; letter-spacing: 4px; font-weight: bold; min-height: 30px; }
-        .keyboard-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; width: 100%; margin-top: 10px; }
-        .key-btn { padding: 8px 0; font-size: 1.1rem; min-width: 0; }
-
-        /* Gender Sort */
-        .folder-container { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: 15px; }
-        .folder-btn { height: 90px; display: flex; align-items: center; justify-content: center; border-radius: 10px 10px 0 0; flex-direction: column; }
-        .folder-icon { font-size: 2rem; margin-bottom: 5px; }
-
-        /* HyperCard */
-        .card-container {
-            border: 2px solid #000;
-            background: #fff;
-            padding: 20px;
-            flex-grow: 1;
-            max-height: 300px;
+        .game-view.active {
             display: flex;
+        }
+
+        /* Game Over Screen */
+        #game-over {
+            display: none;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            box-shadow: 4px 4px 0 #ccc;
-            margin-bottom: 10px;
-            position: relative;
-        }
-        .card-header {
-            position: absolute;
-            top: 0; left: 0; right: 0;
-            height: 20px;
-            background: repeating-linear-gradient(45deg, #000, #000 1px, #fff 1px, #fff 2px);
-            border-bottom: 2px solid #000;
-        }
-        .card-content { text-align: center; }
-        .card-main-text { font-size: 2.2rem; font-weight: bold; margin-bottom: 10px; display: block; line-height: 1.1;}
-        .card-sub-text { font-size: 1.1rem; font-style: italic; color: #555; }
-        .card-controls { display: flex; justify-content: space-between; gap: 10px; margin-bottom: 10px;}
-        
-        /* Calculator */
-        .calc-screen {
-            background: #e0e0e0;
-            border: 2px solid #000;
-            border-radius: 5px;
-            padding: 8px;
-            margin-bottom: 10px;
-            text-align: right;
-            font-family: 'VT323', monospace;
-            box-shadow: inset 2px 2px 5px rgba(0,0,0,0.2);
-        }
-        .calc-display-top { font-size: 1rem; color: #444; margin-bottom: 2px; }
-        .calc-display-main { font-size: 2rem; font-weight: bold; overflow: hidden; white-space: nowrap; line-height: 1; }
-        .calc-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-        }
-        .calc-btn {
-            height: 55px;
-            font-size: 1.4rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        /* Sentence Builder */
-        .builder-target-box {
-            background: #fff;
-            border: 2px solid #000;
-            min-height: 70px;
-            padding: 10px;
-            margin-bottom: 15px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-        }
-        .builder-target-box::after {
-            content: "Document1";
-            position: absolute;
-            top: -12px;
-            left: 10px;
-            background: #fff;
-            padding: 0 5px;
-            font-size: 0.9rem;
-        }
-        .builder-desktop {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            justify-content: center;
-            padding: 10px;
-            background: repeating-linear-gradient(45deg, #eee 25%, transparent 25%, transparent 75%, #eee 75%, #eee), repeating-linear-gradient(45deg, #eee 25%, #f0f0f0 25%, #f0f0f0 75%, #eee 75%, #eee);
-            background-position: 0 0, 10px 10px;
-            background-size: 20px 20px;
-            border: 1px solid #ccc;
-            flex-grow: 1;
-            overflow-y: auto;
-            min-height: 120px;
-        }
-        .word-file {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            cursor: pointer;
-            width: 60px;
-        }
-        .file-icon {
-            width: 35px;
-            height: 45px;
-            border: 2px solid #000;
-            background: #fff;
-            position: relative;
-            margin-bottom: 2px;
-        }
-        .file-icon::after {
-            content: '';
-            position: absolute;
-            top: -2px;
-            right: -2px;
-            width: 0;
-            height: 0;
-            border-left: 10px solid transparent;
-            border-right: 10px solid #fff;
-            border-bottom: 10px solid transparent;
-            border-top: 10px solid #fff;
-            background: linear-gradient(45deg, transparent 50%, #000 50%);
-            width: 12px; height: 12px;
-        }
-        .file-label {
-            font-size: 0.8rem;
+            height: 100%;
+            gap: 20px;
             text-align: center;
-            background: #fff;
-            padding: 1px;
-            line-height: 1;
-            word-break: break-all;
         }
-        .word-file.used {
+        #game-over.active { display: flex; }
+
+        /* Flashcard Style */
+        .card {
+            border: 2px solid var(--border-color);
+            width: 80%;
+            height: 160px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-size: 2.5rem;
+            box-shadow: 4px 4px 0px #aaa;
+            cursor: pointer;
+            background: #fff;
+            position: relative;
+            text-align: center;
+            padding: 10px;
+        }
+
+        .card-hint {
+            font-size: 1rem;
+            position: absolute;
+            bottom: 5px;
+            color: #666;
+        }
+
+        /* Inputs */
+        input[type="text"] {
+            font-family: 'VT323', monospace;
+            font-size: 1.5rem;
+            border: 1px solid var(--border-color);
+            padding: 5px;
+            width: 80%;
+            text-align: center;
+            outline: none;
+            box-shadow: inset 2px 2px 2px #ccc;
+        }
+
+        /* Multiple Choice Grid */
+        .mc-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            width: 100%;
+            margin-top: 10px;
+        }
+        .mc-btn {
+            padding: 15px;
+            font-size: 1.2rem;
+            white-space: normal; 
+            line-height: 1.1;
+        }
+
+        /* Builder Mode */
+        #build-area {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+            margin: 10px 0;
+            min-height: 50px;
+        }
+
+        .word-brick {
+            border: 1px solid black;
+            padding: 5px 10px;
+            cursor: pointer;
+            background: white;
+            box-shadow: 2px 2px 0 black;
+        }
+        .word-brick:active {
+            box-shadow: none;
+            transform: translate(2px, 2px);
+        }
+        .word-brick.used {
             opacity: 0.3;
             pointer-events: none;
+            box-shadow: none;
+            border: 1px dashed #999;
         }
+
+        #build-target {
+            width: 90%;
+            min-height: 60px;
+            border: 2px solid black;
+            background: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: inset 3px 3px 0 #ccc;
+            margin-bottom: 10px;
+            font-size: 1.5rem;
+            flex-wrap: wrap;
+            padding: 5px;
+        }
+
         .word-in-doc {
-            border-bottom: 2px solid #000;
-            padding: 4px 8px;
             cursor: pointer;
+            border-bottom: 1px dotted black;
         }
         .word-in-doc:hover {
             background: #eee;
         }
 
+        /* Sorter Mode (Gender/POS) */
+        .bucket-container {
+            display: flex;
+            width: 100%;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap; /* Allow wrapping for more categories */
+            margin-top: 20px;
+        }
 
-        /* Common */
-        .bottom-nav { margin-top: auto; padding-top: 10px; }
-        .feedback-area { min-height: 25px; text-align: center; font-weight: bold; margin-top: 5px; flex-shrink: 0;}
-        .correct { color: #000; text-decoration: underline; }
-        .incorrect { color: #fff; background: #000; display: inline-block; padding: 0 5px;}
-        .log-list { max-height: 200px; overflow-y: auto; border: 1px solid #000; padding: 5px; margin-bottom: 15px; list-style: none; }
-        .log-list li { border-bottom: 1px dotted #ccc; padding: 4px 0; display: flex; justify-content: space-between; }
-        .total-xp-display { font-size: 1.2rem; text-align: center; border: 2px solid #000; padding: 5px; margin-bottom: 10px; background: #eee; }
-        
-        @media (max-height: 600px) {
-            .title-bar { height: 25px; min-height: 25px; }
-            .btn { padding: 5px 10px; font-size: 1.1rem; }
-            .question-word { font-size: 1.8rem; }
-            .file-icon { width: 30px; height: 40px; }
-            .builder-target-box { min-height: 50px; }
+        .bucket {
+            border: 2px solid black;
+            width: 30%; 
+            height: 80px; /* Slightly shorter to fit rows */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            cursor: pointer;
+            box-shadow: 3px 3px 0 #ccc;
+            transition: background 0.1s;
+            margin-bottom: 5px;
+        }
+        .bucket:active {
+            background: #eee;
+        }
+        .bucket h3 { margin: 0; font-size: 1.4rem; }
+
+        #sorter-word {
+            font-size: 2.5rem;
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px dashed black;
+        }
+
+        /* Feedback */
+        .feedback {
+            height: 30px;
+            font-size: 1.2rem;
+            margin-top: 5px;
+        }
+        .correct { color: #000; font-weight: bold; text-decoration: underline; }
+        .incorrect { color: #000; font-style: italic; }
+
+        .back-btn {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 100;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .top-info {
+            font-size: 1.1rem; 
+            margin-top: 30px; 
+            color: #555;
+            text-align: center;
         }
 
     </style>
 </head>
 <body>
 
-<div class="window">
+<div id="main-window">
     <div class="title-bar">
-        <div class="title-box">MacLatin v5.0</div>
+        <div class="title-text">MacLatin v6.3</div>
     </div>
-    
-    <div class="content">
-        
-        <!-- === START SCREEN === -->
-        <div id="start-screen" class="screen active">
-            
-            <div id="xp-display" class="total-xp-display">TOTAL XP: 0</div>
-            
-            <div style="text-align: center; margin-bottom: 5px; flex-shrink: 0;">
-                <h2 style="margin: 0 0 5px 0;">SELECT ACTIVITY</h2>
-            </div>
 
-            <!-- Activity Selection -->
-            <div class="activity-grid">
-                <button class="btn activity-btn selected" id="btn-act-quiz" onclick="setActivity('quiz')">
-                    <span>?</span> Quiz
-                </button>
-                <button class="btn activity-btn" id="btn-act-macman" onclick="setActivity('macman')">
-                    <span>웃</span> MacMan
-                </button>
-                <button class="btn activity-btn" id="btn-act-sort" onclick="setActivity('sort')">
-                    <span>🗂️</span> Gender Sort
-                </button>
-                <button class="btn activity-btn" id="btn-act-cards" onclick="setActivity('cards')">
-                    <span>❏</span> HyperCards
-                </button>
-                <button class="btn activity-btn" id="btn-act-calc" onclick="setActivity('calc')">
-                    <span>🔢</span> Conjugator
-                </button>
-                <button class="btn activity-btn" id="btn-act-build" onclick="setActivity('build')">
-                    <span>📝</span> Sentences
-                </button>
-            </div>
-
-            <!-- Settings -->
-            <div style="flex-grow: 1; overflow-y: auto;">
+    <div id="content">
+        <!-- MENU VIEW -->
+        <div id="menu-view">
+            <div style="font-size: 1.5rem; margin-top:5px;">SALVETE!</div>
+            
+            <!-- Setup Area -->
+            <div class="section-box" id="setup-area">
+                <span class="section-label">Settings</span>
+                
                 <div class="control-group">
-                    <label>Chapters:</label>
-                    <select id="chapter-select">
-                        <option value="all">All Chapters (1-7)</option>
-                        <option value="1">Chapter 1</option>
-                        <option value="2">Chapter 2</option>
-                        <option value="3">Chapter 3</option>
-                        <option value="4">Chapter 4</option>
-                        <option value="5">Chapter 5</option>
-                        <option value="6">Chapter 6</option>
-                        <option value="7">Chapter 7</option>
+                    <label>From Ch:</label>
+                    <select id="chapter-start"></select>
+                    <label>To Ch:</label>
+                    <select id="chapter-end"></select>
+                </div>
+
+                <div class="control-group">
+                    <label>Pool:</label>
+                    <select id="deck-source">
+                        <option value="all">Chapters</option>
+                        <option value="missed">Missed List (0)</option>
                     </select>
                 </div>
 
-                <!-- Dynamic Settings Area -->
-                <div id="quiz-settings">
-                    <div class="control-group">
-                        <label>Mode:</label>
-                        <select id="mode-select">
-                            <option value="multiple">Multiple Choice</option>
-                            <option value="type">Type Answer</option>
-                        </select>
-                    </div>
-                    <div class="control-group">
-                        <label>Direction:</label>
-                        <select id="direction-select">
-                            <option value="lat-eng">Latin &rarr; English</option>
-                            <option value="eng-lat">English &rarr; Latin</option>
-                        </select>
-                    </div>
-                </div>
-                
-                <div id="calc-note" style="display:none; font-size: 0.9rem; font-style: italic; text-align: center; margin-top: 5px;">
-                    Note: Conjugator uses verbs from Ch 2, 4, 5, 6.
+                <div class="control-group">
+                    <label>View:</label>
+                    <select id="display-mode">
+                        <option value="lat">Lat -> Eng</option>
+                        <option value="eng">Eng -> Lat</option>
+                    </select>
                 </div>
 
-                <!-- Saved Data Notification -->
-                <div id="saved-data-notice" style="display:none; margin-top: 10px;">
-                    <button class="btn btn-block" style="border: 2px dashed #000;" onclick="reviewSavedMissed()">
-                        REVIEW SAVED MISSED ITEMS
+                <div class="control-group">
+                    <label>Input:</label>
+                    <select id="input-mode">
+                        <option value="mc">Multiple Choice</option>
+                        <option value="type">Typed Answer</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Game Selection Area -->
+            <div class="section-box">
+                <span class="section-label">Select Activity</span>
+                <div class="game-grid">
+                    <button class="game-btn" onclick="initGame('flashcards')">
+                        Flashcards
+                        <span>Review</span>
+                    </button>
+                    <button class="game-btn" onclick="initGame('input')">
+                        Vocab
+                        <span>Quiz</span>
+                    </button>
+                    <button class="game-btn" onclick="initGame('builder')">
+                        Builder
+                        <span>Sentences</span>
+                    </button>
+                    <button class="game-btn" onclick="initGame('sorter-gen')">
+                        Gender Sort
+                        <span>M / F / N</span>
+                    </button>
+                    <button class="game-btn" onclick="initGame('grammar-decl')">
+                        Declensions
+                        <span>Noun Endings</span>
+                    </button>
+                    <button class="game-btn" onclick="initGame('grammar-conj')">
+                        Conjugations
+                        <span>Verb Endings</span>
+                    </button>
+                    <button class="game-btn" onclick="initGame('sorter-pos')" style="grid-column: span 2">
+                        P.O.S. Sort
+                        <span>Noun/Verb/Adj/Adv/Prep</span>
                     </button>
                 </div>
             </div>
-
-            <div class="bottom-nav" style="display:flex; flex-direction: column; gap: 5px;">
-                <button class="btn btn-block" onclick="startGame(false)">START GAME</button>
-                <button class="btn btn-block btn-danger" onclick="resetData()">RESET DATA</button>
-            </div>
         </div>
 
-        <!-- === QUIZ SCREEN === -->
-        <div id="quiz-screen" class="screen">
-            <div class="stats-bar">
-                <span id="quiz-score">Score: 0</span>
-                <span id="quiz-progress">1 / 10</span>
-            </div>
-            <div class="question-box">
-                <span id="quiz-word" class="question-word">...</span>
-                <span id="quiz-hint" class="question-context"></span>
-            </div>
-            <!-- Input Area allows growth -->
-            <div id="quiz-input-area" style="flex-grow: 1; display: flex; flex-direction: column; justify-content: center;"></div>
+        <!-- GAME OVER / REVIEW SCREEN -->
+        <div id="game-over">
+            <div style="font-size: 2rem;">Round Complete!</div>
+            <div id="stats-report" style="font-size: 1.5rem;">Accuracy: 100%</div>
             
-            <div id="quiz-feedback" class="feedback-area"></div>
-            <div class="bottom-nav">
-                <button class="btn btn-small" onclick="quitGame()">Quit</button>
+            <div class="control-group" style="flex-direction: column; gap: 15px; margin-top: 20px;">
+                <button id="btn-review-missed" style="display:none;" onclick="reviewMissedSession()">Review Just Missed</button>
+                <button onclick="restartGame()">Replay Round</button>
+                <button onclick="returnToMenu()">Main Menu</button>
             </div>
         </div>
 
-        <!-- === MACMAN SCREEN === -->
-        <div id="macman-screen" class="screen">
-            <div class="stats-bar">
-                <span id="mm-score">Wins: 0</span>
-                <span>MacMan</span>
-            </div>
-            <div style="flex-grow: 1; overflow-y: auto;">
-                <div class="macman-container">
-                    <canvas id="macman-canvas" width="120" height="120"></canvas>
-                    <div id="mm-word" class="word-display">_ _ _ _ _</div>
-                    <div id="mm-hint" style="font-style: italic; min-height: 1.2rem;"></div>
-                </div>
-                <div id="mm-keyboard" class="keyboard-grid"></div>
-            </div>
-            <div id="mm-feedback" class="feedback-area"></div>
-            <div class="bottom-nav">
-                 <button class="btn btn-small" onclick="quitGame()">Quit</button>
-            </div>
-        </div>
-
-        <!-- === GENDER SORT SCREEN === -->
-        <div id="sort-screen" class="screen">
-             <div class="stats-bar">
-                <span id="sort-score">Score: 0</span>
-                <span>Gender Sort</span>
-            </div>
-            <div class="question-box">
-                <span style="font-size: 1.1rem;">Sort by Gender:</span>
-                <span id="sort-word" class="question-word" style="margin-top: 5px;">...</span>
-                <span id="sort-def" class="question-context"></span>
-            </div>
-            <div class="folder-container" style="flex-grow: 1;">
-                <button class="btn folder-btn" onclick="checkSort('m')"><span class="folder-icon">M</span>Masc</button>
-                <button class="btn folder-btn" onclick="checkSort('f')"><span class="folder-icon">F</span>Fem</button>
-                <button class="btn folder-btn" onclick="checkSort('n')"><span class="folder-icon">N</span>Neut</button>
-            </div>
-            <div id="sort-feedback" class="feedback-area"></div>
-             <div class="bottom-nav">
-                 <button class="btn btn-small" onclick="quitGame()">Quit</button>
-            </div>
-        </div>
-
-        <!-- === HYPERCARD SCREEN === -->
-        <div id="cards-screen" class="screen">
-            <div class="stats-bar">
-                <span id="card-count">Card 1 / 10</span>
-                <span>HyperCard Study</span>
-            </div>
-            <div class="card-container" onclick="flipCard()">
-                <div class="card-header"></div>
-                <div class="card-content">
-                    <span id="card-main" class="card-main-text">Word</span>
-                    <span id="card-sub" class="card-sub-text">Definition</span>
-                    <div style="margin-top: 20px; font-size: 0.8rem; color: #888;">(Click card to flip)</div>
+        <!-- FLASHCARD GAME -->
+        <div id="game-flashcards" class="game-view">
+            <button class="back-btn" onclick="returnToMenu()">&lt;</button>
+            <div class="top-info" id="fc-counter">Card 1 / 10</div>
+            <div style="flex:1; display:flex; align-items:center; justify-content:center; width:100%;">
+                <div class="card" onclick="flipCard()">
+                    <div id="fc-content">...</div>
+                    <div class="card-hint">(Click to flip)</div>
                 </div>
             </div>
-            <div class="card-controls">
-                <button class="btn" onclick="prevCard()">&larr; Prev</button>
-                <button class="btn" onclick="flipCard()">Flip ↻</button>
-                <button class="btn" onclick="nextCard()">Next &rarr;</button>
-            </div>
-            <div class="bottom-nav">
-                 <button class="btn btn-small" onclick="quitGame()">Back to Menu</button>
+            <div class="control-group" style="margin-bottom: 20px;">
+                <button onclick="nextCard(false)">Mark Incorrect</button>
+                <button onclick="nextCard(true)">Mark Correct</button>
             </div>
         </div>
 
-        <!-- === CALCULATOR SCREEN === -->
-        <div id="calc-screen" class="screen">
-            <div class="stats-bar">
-                <span id="calc-score">Score: 0</span>
-                <span>Conjugator</span>
+        <!-- INPUT / MC GAME -->
+        <div id="game-input" class="game-view">
+            <button class="back-btn" onclick="returnToMenu()">&lt;</button>
+            <div class="top-info" id="input-counter">1 / 10</div>
+            
+            <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; width:100%;">
+                <div style="font-size: 2rem; margin-bottom: 20px;" id="input-prompt">Prompt</div>
+                
+                <!-- Typed Area -->
+                <div id="input-area-typed" style="width: 100%; text-align:center;">
+                    <input type="text" id="user-input" autocomplete="off" placeholder="Type answer...">
+                    <button onclick="checkInput()" style="margin-top:10px;">Check</button>
+                </div>
+
+                <!-- MC Area -->
+                <div id="input-area-mc" class="mc-grid" style="display:none;">
+                    <!-- Buttons injected -->
+                </div>
+
+                <div id="input-feedback" class="feedback"></div>
+            </div>
+        </div>
+
+        <!-- BUILDER GAME -->
+        <div id="game-builder" class="game-view">
+            <button class="back-btn" onclick="returnToMenu()">&lt;</button>
+            <div style="width:100%; margin-top: 40px;">
+                <div style="text-align:center; font-size: 1.3rem; margin-bottom:10px;">Construct:</div>
+                <div style="text-align:center; font-size: 1.8rem; margin-bottom:20px; font-weight:bold;" id="build-prompt">...</div>
+                
+                <div style="display:flex; justify-content:center;">
+                    <div id="build-target"></div>
+                </div>
+
+                <div id="build-area"></div>
+                <div id="build-feedback" class="feedback" style="text-align:center;"></div>
+            </div>
+            <div style="margin-bottom: 20px;">
+                <button onclick="checkSentence()">Check</button>
+                <button onclick="skipBuilder()">Skip</button>
+            </div>
+        </div>
+
+        <!-- SORTER GAME (Generic for Gender & POS) -->
+        <div id="game-sorter" class="game-view">
+            <button class="back-btn" onclick="returnToMenu()">&lt;</button>
+            <div style="margin-top: 40px; text-align: center; width: 100%;">
+                <div id="sorter-title" style="margin-bottom: 10px;">Sort by...</div>
+                <div id="sorter-word">WORD</div>
+                <div id="sorter-feedback" class="feedback"></div>
             </div>
             
-            <div class="calc-screen">
-                <div id="calc-display-top" class="calc-display-top">amo + tu</div>
-                <div id="calc-display-main" class="calc-display-main">amas</div>
-            </div>
-
-            <div id="calc-grid-container" class="calc-grid" style="flex-grow: 1;">
-                <!-- Buttons injected via JS -->
-            </div>
-
-            <div id="calc-feedback" class="feedback-area"></div>
-
-            <div class="bottom-nav">
-                 <button class="btn btn-small" onclick="quitGame()">Quit</button>
+            <div id="sorter-buckets" class="bucket-container" style="margin-bottom: 20px;">
+                <!-- Buckets injected via JS -->
             </div>
         </div>
 
-        <!-- === SENTENCE BUILDER SCREEN === -->
-        <div id="build-screen" class="screen">
-            <div class="stats-bar">
-                <span id="build-score">Score: 0</span>
-                <span>Sentence Builder</span>
-            </div>
-            
-            <div class="question-box" style="margin: 5px 0;">
-                <span style="font-size: 0.9rem; color: #444;">Translate to Latin:</span>
-                <span id="build-eng" style="display:block; font-size: 1.3rem; font-weight: bold; line-height: 1.2;">The farmer loves water.</span>
-            </div>
+    </div>
 
-            <!-- Target Area -->
-            <div class="builder-target-box" id="build-target"></div>
-
-            <!-- Source Area (Desktop) -->
-            <div class="builder-desktop" id="build-source"></div>
-
-            <div id="build-feedback" class="feedback-area"></div>
-
-            <div class="bottom-nav" style="display: flex; gap: 10px;">
-                <button class="btn btn-block" onclick="checkSentence()">CHECK</button>
-                <button class="btn btn-small" onclick="quitGame()">Quit</button>
-            </div>
-        </div>
-
-        <!-- === RESULTS SCREEN === -->
-        <div id="result-screen" class="screen">
-            <div style="text-align: center; flex-shrink: 0;">
-                <h2>SESSION COMPLETE</h2>
-                <h1 id="final-score">85%</h1>
-                <p id="result-message">Good job!</p>
-            </div>
-            <div id="missed-container" style="display: none; flex-grow: 1; overflow-y: hidden; display: flex; flex-direction: column;">
-                <label>Missed Items (Saved):</label>
-                <ul id="log-list" class="log-list" style="flex-grow: 1; max-height: none;"></ul>
-                <button class="btn btn-block" onclick="reviewMissedImmediately()">REVIEW NOW</button>
-            </div>
-            <div class="bottom-nav">
-                <button class="btn btn-block" onclick="showStartScreen()">MAIN MENU</button>
-            </div>
-        </div>
-
+    <div id="stats-bar">
+        <span>XP: <span id="xp-display">0</span></span>
+        <span id="level-display">Novice</span>
     </div>
 </div>
 
 <script>
+
+
+
+
+
+    
     // --- DATABASE ---
-    const VOCAB_DB = [
-        // CHAPTER 1
-        { ch: 1, lat: "agricola", eng: "farmer", gender: "m" },
-        { ch: 1, lat: "aqua", eng: "water", gender: "f" },
-        { ch: 1, lat: "athleta", eng: "athlete", gender: "m" },
-        { ch: 1, lat: "filia", eng: "daughter", gender: "f" },
-        { ch: 1, lat: "lupa", eng: "she-wolf", gender: "f" },
-        { ch: 1, lat: "nauta", eng: "sailor", gender: "m" },
-        { ch: 1, lat: "poeta", eng: "poet", gender: "m" },
-        { ch: 1, lat: "puella", eng: "girl", gender: "f" },
-        { ch: 1, lat: "Roma", eng: "Rome", gender: "f" },
-        { ch: 1, lat: "terra", eng: "land", gender: "f" },
-        { ch: 1, lat: "amat", eng: "he/she/it loves" },
-        { ch: 1, lat: "ambulat", eng: "he/she/it walks" },
-        { ch: 1, lat: "curat", eng: "he/she/it takes care of" },
-        { ch: 1, lat: "est", eng: "he/she/it is" },
-        { ch: 1, lat: "bene", eng: "well" },
-        { ch: 1, lat: "postea", eng: "afterwards" },
-        { ch: 1, lat: "et", eng: "and" },
-        { ch: 1, lat: "itaque", eng: "and so" },
-        // CHAPTER 2
-        { ch: 2, lat: "fabula", eng: "story", gender: "f" },
-        { ch: 2, lat: "forma", eng: "form", gender: "f" },
-        { ch: 2, lat: "patria", eng: "fatherland", gender: "f" },
-        { ch: 2, lat: "amo", eng: "to love" },
-        { ch: 2, lat: "ambulo", eng: "to walk" },
-        { ch: 2, lat: "curo", eng: "to care for" },
-        { ch: 2, lat: "debeo", eng: "to ought/owe" },
-        { ch: 2, lat: "exspecto", eng: "to wait for" },
-        { ch: 2, lat: "habeo", eng: "to have" },
-        { ch: 2, lat: "habito", eng: "to live" },
-        { ch: 2, lat: "narro", eng: "to tell" },
-        { ch: 2, lat: "paro", eng: "to prepare" },
-        { ch: 2, lat: "teneo", eng: "to hold" },
-        { ch: 2, lat: "video", eng: "to see" },
-        { ch: 2, lat: "voco", eng: "to call" },
-        { ch: 2, lat: "diu", eng: "for a long time" },
-        { ch: 2, lat: "nunc", eng: "now" },
-        { ch: 2, lat: "non", eng: "not" },
-        // CHAPTER 3
-        { ch: 3, lat: "ager", eng: "field", gender: "m" },
-        { ch: 3, lat: "amicus", eng: "friend", gender: "m" },
-        { ch: 3, lat: "animus", eng: "spirit", gender: "m" },
-        { ch: 3, lat: "casa", eng: "little house", gender: "f" },
-        { ch: 3, lat: "domi", eng: "at home" },
-        { ch: 3, lat: "filius", eng: "son", gender: "m" },
-        { ch: 3, lat: "puer", eng: "boy", gender: "m" },
-        { ch: 3, lat: "rivus", eng: "brook", gender: "m" },
-        { ch: 3, lat: "via", eng: "road", gender: "f" },
-        { ch: 3, lat: "vir", eng: "man", gender: "m" },
-        { ch: 3, lat: "ego", eng: "I" },
-        { ch: 3, lat: "tu", eng: "you" },
-        { ch: 3, lat: "timeo", eng: "to fear" },
-        { ch: 3, lat: "deinde", eng: "then" },
-        { ch: 3, lat: "valde", eng: "very" },
-        { ch: 3, lat: "cum", eng: "with" },
-        { ch: 3, lat: "in", eng: "in" },
-        // CHAPTER 4
-        { ch: 4, lat: "bellum", eng: "war", gender: "n" },
-        { ch: 4, lat: "castra", eng: "camp", gender: "n" },
-        { ch: 4, lat: "dolus", eng: "trickery", gender: "m" },
-        { ch: 4, lat: "praemium", eng: "reward", gender: "n" },
-        { ch: 4, lat: "venenum", eng: "poison", gender: "n" },
-        { ch: 4, lat: "vinculum", eng: "chain", gender: "n" },
-        { ch: 4, lat: "bonus", eng: "good" },
-        { ch: 4, lat: "armatus", eng: "armed" },
-        { ch: 4, lat: "iustus", eng: "just" },
-        { ch: 4, lat: "magnus", eng: "large" },
-        { ch: 4, lat: "malus", eng: "bad" },
-        { ch: 4, lat: "praeclarus", eng: "famous" },
-        { ch: 4, lat: "Romanus", eng: "Roman" },
-        { ch: 4, lat: "do", eng: "to give" },
-        { ch: 4, lat: "intro", eng: "to enter" },
-        { ch: 4, lat: "iubeo", eng: "to order" },
-        { ch: 4, lat: "ad", eng: "towards" },
-        { ch: 4, lat: "e/ex", eng: "from" },
-        // CHAPTER 5
-        { ch: 5, lat: "auxilium", eng: "help", gender: "n" },
-        { ch: 5, lat: "consilium", eng: "plan", gender: "n" },
-        { ch: 5, lat: "epistula", eng: "letter", gender: "f" },
-        { ch: 5, lat: "familia", eng: "family", gender: "f" },
-        { ch: 5, lat: "gaudium", eng: "joy", gender: "n" },
-        { ch: 5, lat: "lacrima", eng: "tear", gender: "f" },
-        { ch: 5, lat: "longus", eng: "long" },
-        { ch: 5, lat: "miser", eng: "wretched" },
-        { ch: 5, lat: "pulcher", eng: "beautiful" },
-        { ch: 5, lat: "cogito", eng: "to think" },
-        { ch: 5, lat: "doleo", eng: "to feel pain" },
-        { ch: 5, lat: "longe", eng: "far" },
-        { ch: 5, lat: "semper", eng: "always" },
-        { ch: 5, lat: "a/ab", eng: "by/from" },
-        { ch: 5, lat: "de", eng: "about" },
-        { ch: 5, lat: "nam", eng: "for" },
-        { ch: 5, lat: "non solum", eng: "not only" },
-        { ch: 5, lat: "sed etiam", eng: "but also" },
-        { ch: 5, lat: "tamen", eng: "however" },
-        // CHAPTER 6
-        { ch: 6, lat: "exemplum", eng: "example", gender: "n" },
-        { ch: 6, lat: "liber", eng: "book", gender: "m" },
-        { ch: 6, lat: "littera", eng: "letter (alphabet)", gender: "f" },
-        { ch: 6, lat: "memoria", eng: "memory", gender: "f" },
-        { ch: 6, lat: "tenebrae", eng: "shadows", gender: "f" },
-        { ch: 6, lat: "vita", eng: "life", gender: "f" },
-        { ch: 6, lat: "multus", eng: "much" },
-        { ch: 6, lat: "doceo", eng: "to teach" },
-        { ch: 6, lat: "firmo", eng: "to strengthen" },
-        { ch: 6, lat: "iaceo", eng: "to lie down" },
-        { ch: 6, lat: "iudico", eng: "to judge" },
-        { ch: 6, lat: "maneo", eng: "to remain" },
-        { ch: 6, lat: "possum", eng: "to be able" },
-        { ch: 6, lat: "servo", eng: "to save" },
-        { ch: 6, lat: "soleo", eng: "to be accustomed" },
-        { ch: 6, lat: "sum", eng: "to be" },
-        { ch: 6, lat: "saepe", eng: "often" },
-        { ch: 6, lat: "propter", eng: "because of" },
-        { ch: 6, lat: "dum", eng: "while" },
-        // CHAPTER 7
-        { ch: 7, lat: "amor", eng: "love", gender: "m" },
-        { ch: 7, lat: "deliciae", eng: "delight", gender: "f" },
-        { ch: 7, lat: "digitus", eng: "finger", gender: "m" },
-        { ch: 7, lat: "domina", eng: "mistress", gender: "f" },
-        { ch: 7, lat: "gremium", eng: "lap", gender: "n" },
-        { ch: 7, lat: "oculus", eng: "eye", gender: "m" },
-        { ch: 7, lat: "passer", eng: "sparrow", gender: "m" },
-        { ch: 7, lat: "pax", eng: "peace", gender: "f" },
-        { ch: 7, lat: "senex", eng: "old man", gender: "m" },
-        { ch: 7, lat: "soror", eng: "sister", gender: "f" },
-        { ch: 7, lat: "verbum", eng: "word", gender: "n" },
-        { ch: 7, lat: "se", eng: "reflexive pronoun" },
-        { ch: 7, lat: "meus", eng: "my" },
-        { ch: 7, lat: "severus", eng: "strict" },
-        { ch: 7, lat: "aestimo", eng: "to esteem" },
-        { ch: 7, lat: "invideo", eng: "to envy" },
-        { ch: 7, lat: "puto", eng: "to consider" }
+const vocabDB = [
+    // --- CHAPTER 1 VOCABULARY ---
+    { lat: "agricola", eng: "farmer", gen: "m", pos: "n", ch: 1 },
+    { lat: "amo", eng: "to love", gen: "x", pos: "v", ch: 1 },
+    { lat: "ambulo", eng: "to walk", gen: "x", pos: "v", ch: 1 },
+    { lat: "aqua", eng: "water", gen: "f", pos: "n", ch: 1 },
+    { lat: "athleta", eng: "athlete", gen: "m", pos: "n", ch: 1 },
+    { lat: "bene", eng: "well", gen: "x", pos: "adv", ch: 1 },
+    { lat: "curo", eng: "to take care of", gen: "x", pos: "v", ch: 1 },
+    { lat: "est", eng: "is", gen: "x", pos: "v", ch: 1 },
+    { lat: "et", eng: "and", gen: "x", pos: "conj", ch: 1 },
+    { lat: "filia", eng: "daughter", gen: "f", pos: "n", ch: 1 },
+    { lat: "itaque", eng: "and so", gen: "x", pos: "conj", ch: 1 },
+    { lat: "lupa", eng: "she-wolf", gen: "f", pos: "n", ch: 1 },
+    { lat: "nauta", eng: "sailor", gen: "m", pos: "n", ch: 1 },
+    { lat: "poeta", eng: "poet", gen: "m", pos: "n", ch: 1 },
+    { lat: "postea", eng: "afterwards", gen: "x", pos: "adv", ch: 1 },
+    { lat: "puella", eng: "girl", gen: "f", pos: "n", ch: 1 },
+    { lat: "Roma", eng: "Rome", gen: "f", pos: "n", ch: 1 },
+    { lat: "sunt", eng: "are", gen: "x", pos: "v", ch: 1 },
+    { lat: "terra", eng: "land", gen: "f", pos: "n", ch: 1 },
+
+    // --- CHAPTER 2 VOCABULARY ---
+    { lat: "ager", eng: "field", gen: "m", pos: "n", ch: 2 },
+    { lat: "amicus", eng: "friend", gen: "m", pos: "n", ch: 2 },
+    { lat: "annus", eng: "year", gen: "m", pos: "n", ch: 2 },
+    { lat: "campus", eng: "field/plain", gen: "m", pos: "n", ch: 2 },
+    { lat: "clamo", eng: "to shout", gen: "x", pos: "v", ch: 2 },
+    { lat: "cum", eng: "with", gen: "x", pos: "prep", ch: 2 },
+    { lat: "debeo", eng: "to owe/ought", gen: "x", pos: "v", ch: 2 },
+    { lat: "deus", eng: "god", gen: "m", pos: "n", ch: 2 },
+    { lat: "do", eng: "to give", gen: "x", pos: "v", ch: 2 },
+    { lat: "dominus", eng: "master", gen: "m", pos: "n", ch: 2 },
+    { lat: "equus", eng: "horse", gen: "m", pos: "n", ch: 2 },
+    { lat: "filius", eng: "son", gen: "m", pos: "n", ch: 2 },
+    { lat: "gladius", eng: "sword", gen: "m", pos: "n", ch: 2 },
+    { lat: "habeo", eng: "to have", gen: "x", pos: "v", ch: 2 },
+    { lat: "habito", eng: "to live/dwell", gen: "x", pos: "v", ch: 2 },
+    { lat: "laboro", eng: "to work", gen: "x", pos: "v", ch: 2 },
+    { lat: "laudo", eng: "to praise", gen: "x", pos: "v", ch: 2 },
+    { lat: "legatus", eng: "lieutenant/envoy", gen: "m", pos: "n", ch: 2 },
+    { lat: "ludus", eng: "game/school", gen: "m", pos: "n", ch: 2 },
+    { lat: "moneo", eng: "to warn", gen: "x", pos: "v", ch: 2 },
+    { lat: "narro", eng: "to tell", gen: "x", pos: "v", ch: 2 },
+    { lat: "nuntius", eng: "messenger", gen: "m", pos: "n", ch: 2 },
+    { lat: "porto", eng: "to carry", gen: "x", pos: "v", ch: 2 },
+    { lat: "puer", eng: "boy", gen: "m", pos: "n", ch: 2 },
+    { lat: "servus", eng: "slave", gen: "m", pos: "n", ch: 2 },
+    { lat: "specto", eng: "to watch", gen: "x", pos: "v", ch: 2 },
+    { lat: "sum", eng: "to be", gen: "x", pos: "v", ch: 2 },
+    { lat: "timeo", eng: "to fear", gen: "x", pos: "v", ch: 2 },
+    { lat: "video", eng: "to see", gen: "x", pos: "v", ch: 2 },
+    { lat: "vir", eng: "man", gen: "m", pos: "n", ch: 2 },
+    { lat: "voco", eng: "to call", gen: "x", pos: "v", ch: 2 },
+
+    // --- CHAPTER 3 VOCABULARY ---
+    { lat: "ad", eng: "to/toward", gen: "x", pos: "prep", ch: 3 },
+    { lat: "altus", eng: "high/deep", gen: "m", pos: "adj", ch: 3 },
+    { lat: "appello", eng: "to call/name", gen: "x", pos: "v", ch: 3 },
+    { lat: "bellum", eng: "war", gen: "n", pos: "n", ch: 3 },
+    { lat: "bonus", eng: "good", gen: "m", pos: "adj", ch: 3 },
+    { lat: "caelum", eng: "sky", gen: "n", pos: "n", ch: 3 },
+    { lat: "convoco", eng: "to call together", gen: "x", pos: "v", ch: 3 },
+    { lat: "donum", eng: "gift", gen: "n", pos: "n", ch: 3 },
+    { lat: "exspecto", eng: "to wait for", gen: "x", pos: "v", ch: 3 },
+    { lat: "ferus", eng: "wild", gen: "m", pos: "adj", ch: 3 },
+    { lat: "frumentum", eng: "grain", gen: "n", pos: "n", ch: 3 },
+    { lat: "latus", eng: "wide", gen: "m", pos: "adj", ch: 3 },
+    { lat: "longus", eng: "long", gen: "m", pos: "adj", ch: 3 },
+    { lat: "magnus", eng: "large/great", gen: "m", pos: "adj", ch: 3 },
+    { lat: "malus", eng: "bad/evil", gen: "m", pos: "adj", ch: 3 },
+    { lat: "meus", eng: "my", gen: "m", pos: "adj", ch: 3 },
+    { lat: "miser", eng: "wretched", gen: "m", pos: "adj", ch: 3 },
+    { lat: "multus", eng: "much/many", gen: "m", pos: "adj", ch: 3 },
+    { lat: "non", eng: "not", gen: "x", pos: "adv", ch: 3 },
+    { lat: "oppidum", eng: "town", gen: "n", pos: "n", ch: 3 },
+    { lat: "parvus", eng: "small", gen: "m", pos: "adj", ch: 3 },
+    { lat: "periculum", eng: "danger", gen: "n", pos: "n", ch: 3 },
+    { lat: "pulcher", eng: "beautiful", gen: "m", pos: "adj", ch: 3 },
+    { lat: "regnum", eng: "kingdom", gen: "n", pos: "n", ch: 3 },
+    { lat: "tuus", eng: "your", gen: "m", pos: "adj", ch: 3 },
+
+    // --- CHAPTER 4 VOCABULARY ---
+    { lat: "arma", eng: "weapons/arms", gen: "n", pos: "n", ch: 4 },
+    { lat: "autem", eng: "however", gen: "x", pos: "conj", ch: 4 },
+    { lat: "castra", eng: "camp", gen: "n", pos: "n", ch: 4 },
+    { lat: "consilium", eng: "plan/advice", gen: "n", pos: "n", ch: 4 },
+    { lat: "dolus", eng: "trickery/deception", gen: "m", pos: "n", ch: 4 },
+    { lat: "e", eng: "from/out of", gen: "x", pos: "prep", ch: 4 },
+    { lat: "exemplum", eng: "example", gen: "n", pos: "n", ch: 4 },
+    { lat: "in", eng: "in/on/into", gen: "x", pos: "prep", ch: 4 },
+    { lat: "intro", eng: "to enter", gen: "x", pos: "v", ch: 4 },
+    { lat: "iubeo", eng: "to order", gen: "x", pos: "v", ch: 4 },
+    { lat: "iustus", eng: "just/righteous", gen: "m", pos: "adj", ch: 4 },
+    { lat: "praeclarus", eng: "famous/distinguished", gen: "m", pos: "adj", ch: 4 },
+    { lat: "praemium", eng: "reward", gen: "n", pos: "n", ch: 4 },
+    { lat: "Romanus", eng: "Roman", gen: "m", pos: "adj", ch: 4 },
+    { lat: "sed", eng: "but", gen: "x", pos: "conj", ch: 4 },
+    { lat: "venenum", eng: "poison", gen: "n", pos: "n", ch: 4 },
+    { lat: "vinculum", eng: "chain/fetter", gen: "n", pos: "n", ch: 4 },
+
+    // --- CHAPTER 5 VOCABULARY ---
+    { lat: "a", eng: "by/from", gen: "x", pos: "prep", ch: 5 },
+    { lat: "auxilium", eng: "help", gen: "n", pos: "n", ch: 5 },
+    { lat: "cogito", eng: "to think", gen: "x", pos: "v", ch: 5 },
+    { lat: "de", eng: "about/down from", gen: "x", pos: "prep", ch: 5 },
+    { lat: "doleo", eng: "to feel pain/hurt", gen: "x", pos: "v", ch: 5 },
+    { lat: "epistula", eng: "letter", gen: "f", pos: "n", ch: 5 },
+    { lat: "familia", eng: "family/household", gen: "f", pos: "n", ch: 5 },
+    { lat: "gaudium", eng: "joy", gen: "n", pos: "n", ch: 5 },
+    { lat: "lacrima", eng: "tear", gen: "f", pos: "n", ch: 5 },
+    { lat: "longe", eng: "far", gen: "x", pos: "adv", ch: 5 },
+    { lat: "nam", eng: "for/in fact", gen: "x", pos: "conj", ch: 5 },
+    { lat: "paro", eng: "to prepare", gen: "x", pos: "v", ch: 5 },
+    { lat: "semper", eng: "always", gen: "x", pos: "adv", ch: 5 },
+
+    // --- CHAPTER 6 VOCABULARY ---
+    { lat: "disco", eng: "to learn", gen: "x", pos: "v", ch: 6 },
+    { lat: "doceo", eng: "to teach", gen: "x", pos: "v", ch: 6 },
+    { lat: "dum", eng: "while", gen: "x", pos: "conj", ch: 6 },
+    { lat: "firmo", eng: "to strengthen", gen: "x", pos: "v", ch: 6 },
+    { lat: "iudico", eng: "to judge", gen: "x", pos: "v", ch: 6 },
+    { lat: "littera", eng: "letter (alphabet)", gen: "f", pos: "n", ch: 6 },
+    { lat: "maneo", eng: "to remain", gen: "x", pos: "v", ch: 6 },
+    { lat: "memoria", eng: "memory", gen: "f", pos: "n", ch: 6 },
+    { lat: "multum", eng: "much", gen: "x", pos: "adv", ch: 6 },
+    { lat: "possum", eng: "to be able/can", gen: "x", pos: "v", ch: 6 },
+    { lat: "scientia", eng: "knowledge", gen: "f", pos: "n", ch: 6 },
+    { lat: "servo", eng: "to save/preserve", gen: "x", pos: "v", ch: 6 },
+    { lat: "soleo", eng: "to be accustomed", gen: "x", pos: "v", ch: 6 },
+    { lat: "tenebrae", eng: "shadows/darkness", gen: "f", pos: "n", ch: 6 },
+    { lat: "vita", eng: "life", gen: "f", pos: "n", ch: 6 },
+
+    // --- CHAPTER 7 VOCABULARY ---
+    { lat: "aestimo", eng: "to regard/value", gen: "x", pos: "v", ch: 7 },
+    { lat: "amor", eng: "love", gen: "m", pos: "n", ch: 7 },
+    { lat: "deliciae", eng: "delight/pet", gen: "f", pos: "n", ch: 7 },
+    { lat: "gremium", eng: "lap", gen: "n", pos: "n", ch: 7 },
+    { lat: "invideo", eng: "to envy", gen: "x", pos: "v", ch: 7 },
+    { lat: "mel", eng: "honey", gen: "n", pos: "n", ch: 7 },
+    { lat: "mellitus", eng: "honey-sweet", gen: "m", pos: "adj", ch: 7 },
+    { lat: "oculus", eng: "eye", gen: "m", pos: "n", ch: 7 },
+    { lat: "passer", eng: "sparrow", gen: "m", pos: "n", ch: 7 },
+    { lat: "pax", eng: "peace", gen: "f", pos: "n", ch: 7 },
+    { lat: "puto", eng: "to think", gen: "x", pos: "v", ch: 7 },
+    { lat: "se", eng: "he/she/they (reflexive)", gen: "x", pos: "n", ch: 7 },
+    { lat: "senex", eng: "old man", gen: "m", pos: "n", ch: 7 },
+    { lat: "severus", eng: "strict/severe", gen: "m", pos: "adj", ch: 7 },
+    { lat: "soror", eng: "sister", gen: "f", pos: "n", ch: 7 },
+    { lat: "verbum", eng: "word", gen: "n", pos: "n", ch: 7 },
+
+    // --- CHAPTER 8 VOCABULARY ---
+    { lat: "decerno", eng: "to decide", gen: "x", pos: "v", ch: 8 },
+    { lat: "dico", eng: "to say", gen: "x", pos: "v", ch: 8 },
+    { lat: "dux", eng: "leader/general", gen: "m", pos: "n", ch: 8 },
+    { lat: "gero", eng: "to carry/wage/wear", gen: "x", pos: "v", ch: 8 },
+    { lat: "homo", eng: "man/human", gen: "m", pos: "n", ch: 8 },
+    { lat: "intellego", eng: "to understand", gen: "x", pos: "v", ch: 8 },
+    { lat: "lex", eng: "law", gen: "f", pos: "n", ch: 8 },
+    { lat: "miles", eng: "soldier", gen: "m", pos: "n", ch: 8 },
+    { lat: "murus", eng: "wall", gen: "m", pos: "n", ch: 8 },
+    { lat: "navis", eng: "ship", gen: "f", pos: "n", ch: 8 },
+    { lat: "oraculum", eng: "oracle", gen: "n", pos: "n", ch: 8 },
+    { lat: "peto", eng: "to seek/ask/attack", gen: "x", pos: "v", ch: 8 },
+    { lat: "relinquo", eng: "to leave behind", gen: "x", pos: "v", ch: 8 },
+    { lat: "saepe", eng: "often", gen: "x", pos: "adv", ch: 8 },
+    { lat: "salus", eng: "safety/health", gen: "f", pos: "n", ch: 8 },
+    { lat: "tandem", eng: "finally/at last", gen: "x", pos: "adv", ch: 8 },
+    { lat: "vinco", eng: "to conquer/defeat", gen: "x", pos: "v", ch: 8 },
+
+    // --- CHAPTER 9 VOCABULARY ---
+    { lat: "capio", eng: "to take/seize", gen: "x", pos: "v", ch: 9 },
+    { lat: "civis", eng: "citizen", gen: "m", pos: "n", ch: 9 },
+    { lat: "coniuratio", eng: "conspiracy", gen: "f", pos: "n", ch: 9 },
+    { lat: "corpus", eng: "body", gen: "n", pos: "n", ch: 9 },
+    { lat: "hic", eng: "this", gen: "m", pos: "adj", ch: 9 },
+    { lat: "ille", eng: "that", gen: "m", pos: "adj", ch: 9 },
+    { lat: "impetus", eng: "attack", gen: "m", pos: "n", ch: 9 },
+    { lat: "iste", eng: "that (wretched)", gen: "m", pos: "adj", ch: 9 },
+    { lat: "ius", eng: "right/law", gen: "n", pos: "n", ch: 9 },
+    { lat: "mons", eng: "mountain", gen: "m", pos: "n", ch: 9 },
+    { lat: "oratio", eng: "speech", gen: "f", pos: "n", ch: 9 },
+    { lat: "sentio", eng: "to feel/perceive", gen: "x", pos: "v", ch: 9 },
+    { lat: "urbs", eng: "city", gen: "f", pos: "n", ch: 9 },
+    { lat: "venio", eng: "to come", gen: "x", pos: "v", ch: 9 },
+
+    // --- CHAPTER 10 VOCABULARY ---
+    { lat: "acer", eng: "sharp/fierce", gen: "m", pos: "adj", ch: 10 },
+    { lat: "audax", eng: "bold", gen: "m", pos: "adj", ch: 10 },
+    { lat: "celeber", eng: "famous/renowned", gen: "m", pos: "adj", ch: 10 },
+    { lat: "celer", eng: "swift/fast", gen: "m", pos: "adj", ch: 10 },
+    { lat: "cupio", eng: "to desire/want", gen: "x", pos: "v", ch: 10 },
+    { lat: "facio", eng: "to do/make", gen: "x", pos: "v", ch: 10 },
+    { lat: "felix", eng: "lucky/happy", gen: "m", pos: "adj", ch: 10 },
+    { lat: "fortis", eng: "brave/strong", gen: "m", pos: "adj", ch: 10 },
+    { lat: "fugio", eng: "to flee", gen: "x", pos: "v", ch: 10 },
+    { lat: "iacio", eng: "to throw", gen: "x", pos: "v", ch: 10 },
+    { lat: "nobilis", eng: "noble", gen: "m", pos: "adj", ch: 10 },
+    { lat: "omnis", eng: "all/every", gen: "m", pos: "adj", ch: 10 },
+
+    // --- CHAPTER 11 VOCABULARY ---
+    { lat: "commoveo", eng: "to move/upset", gen: "x", pos: "v", ch: 11 },
+    { lat: "deleo", eng: "to destroy", gen: "x", pos: "v", ch: 11 },
+    { lat: "dolor", eng: "pain/grief", gen: "m", pos: "n", ch: 11 },
+    { lat: "flamma", eng: "flame", gen: "f", pos: "n", ch: 11 },
+    { lat: "incendo", eng: "to burn/set on fire", gen: "x", pos: "v", ch: 11 },
+    { lat: "navigo", eng: "to sail", gen: "x", pos: "v", ch: 11 },
+    { lat: "obsideo", eng: "to besiege", gen: "x", pos: "v", ch: 11 },
+    { lat: "regina", eng: "queen", gen: "f", pos: "n", ch: 11 },
+    { lat: "specus", eng: "cave", gen: "m", pos: "n", ch: 11 },
+    { lat: "tempestas", eng: "storm", gen: "f", pos: "n", ch: 11 },
+
+    // --- CHAPTER 12 VOCABULARY ---
+    { lat: "adulescens", eng: "young man/woman", gen: "m", pos: "n", ch: 12 },
+    { lat: "consumo", eng: "to consume/eat", gen: "x", pos: "v", ch: 12 },
+    { lat: "dextra", eng: "right hand", gen: "f", pos: "n", ch: 12 },
+    { lat: "ego", eng: "I", gen: "x", pos: "n", ch: 12 },
+    { lat: "hostis", eng: "enemy", gen: "m", pos: "n", ch: 12 },
+    { lat: "ignis", eng: "fire", gen: "m", pos: "n", ch: 12 },
+    { lat: "ira", eng: "anger", gen: "f", pos: "n", ch: 12 },
+    { lat: "nos", eng: "we/us", gen: "x", pos: "n", ch: 12 },
+    { lat: "noster", eng: "our", gen: "m", pos: "adj", ch: 12 },
+    { lat: "tango", eng: "to touch", gen: "x", pos: "v", ch: 12 },
+    { lat: "tu", eng: "you", gen: "x", pos: "n", ch: 12 },
+    { lat: "vester", eng: "your (plural)", gen: "m", pos: "adj", ch: 12 },
+    { lat: "vis", eng: "force/violence", gen: "f", pos: "n", ch: 12 },
+    { lat: "vos", eng: "you all", gen: "x", pos: "n", ch: 12 },
+
+    // --- CHAPTER 13 VOCABULARY ---
+    { lat: "aequus", eng: "even/equal/just", gen: "m", pos: "adj", ch: 13 },
+    { lat: "cor", eng: "heart", gen: "n", pos: "n", ch: 13 },
+    { lat: "delecto", eng: "to delight/please", gen: "x", pos: "v", ch: 13 },
+    { lat: "divinus", eng: "divine", gen: "m", pos: "adj", ch: 13 },
+    { lat: "egeo", eng: "to lack/need", gen: "x", pos: "v", ch: 13 },
+    { lat: "fur", eng: "thief", gen: "m", pos: "n", ch: 13 },
+    { lat: "furtum", eng: "theft", gen: "n", pos: "n", ch: 13 },
+    { lat: "humanus", eng: "human", gen: "m", pos: "adj", ch: 13 },
+    { lat: "iniquitas", eng: "injustice/mischief", gen: "f", pos: "n", ch: 13 },
+    { lat: "lex", eng: "law", gen: "f", pos: "n", ch: 13 },
+    { lat: "ludo", eng: "to play", gen: "x", pos: "v", ch: 13 },
+    { lat: "noctu", eng: "at night", gen: "x", pos: "adv", ch: 13 },
+    { lat: "paene", eng: "almost", gen: "x", pos: "adv", ch: 13 },
+    { lat: "pauper", eng: "poor", gen: "m", pos: "adj", ch: 13 },
+    { lat: "plenus", eng: "full of", gen: "m", pos: "adj", ch: 13 },
+    { lat: "pomum", eng: "fruit", gen: "n", pos: "n", ch: 13 },
+    { lat: "punio", eng: "to punish", gen: "x", pos: "v", ch: 13 },
+
+    // --- CHAPTER 14 VOCABULARY ---
+    { lat: "accuso", eng: "to accuse", gen: "x", pos: "v", ch: 14 },
+    { lat: "alienus", eng: "foreign/another's", gen: "m", pos: "adj", ch: 14 },
+    { lat: "axis", eng: "axle/axis", gen: "m", pos: "n", ch: 14 },
+    { lat: "circum", eng: "around", gen: "x", pos: "prep", ch: 14 },
+    { lat: "constantia", eng: "constancy", gen: "f", pos: "n", ch: 14 },
+    { lat: "descendo", eng: "to descend", gen: "x", pos: "v", ch: 14 },
+    { lat: "divitiae", eng: "wealth/riches", gen: "f", pos: "n", ch: 14 },
+    { lat: "eripio", eng: "to snatch away", gen: "x", pos: "v", ch: 14 },
+    { lat: "erro", eng: "to wander/make a mistake", gen: "x", pos: "v", ch: 14 },
+    { lat: "externus", eng: "outward/external", gen: "m", pos: "adj", ch: 14 },
+    { lat: "fortuna", eng: "fortune/luck", gen: "f", pos: "n", ch: 14 },
+    { lat: "futurus", eng: "future/about to be", gen: "m", pos: "adj", ch: 14 },
+    { lat: "honor", eng: "honor/public office", gen: "m", pos: "n", ch: 14 },
+    { lat: "muto", eng: "to change", gen: "x", pos: "v", ch: 14 },
+    { lat: "possideo", eng: "to possess", gen: "x", pos: "v", ch: 14 },
+    { lat: "pro", eng: "for/on behalf of", gen: "x", pos: "prep", ch: 14 },
+    { lat: "recipio", eng: "to take back", gen: "x", pos: "v", ch: 14 },
+    { lat: "reprehendo", eng: "to blame/rebuke", gen: "x", pos: "v", ch: 14 },
+    { lat: "rota", eng: "wheel", gen: "f", pos: "n", ch: 14 },
+    { lat: "tollo", eng: "to lift up/raise", gen: "x", pos: "v", ch: 14 },
+    { lat: "ullus", eng: "any", gen: "m", pos: "adj", ch: 14 },
+
+    // --- CHAPTER 15 VOCABULARY ---
+    { lat: "aperio", eng: "to open", gen: "x", pos: "v", ch: 15 },
+    { lat: "appareo", eng: "to appear", gen: "x", pos: "v", ch: 15 },
+    { lat: "apud", eng: "at/by/near", gen: "x", pos: "prep", ch: 15 },
+    { lat: "bovile", eng: "cattle shed", gen: "n", pos: "n", ch: 15 },
+    { lat: "centum", eng: "hundred", gen: "x", pos: "adj", ch: 15 },
+    { lat: "decem", eng: "ten", gen: "x", pos: "adj", ch: 15 },
+    { lat: "duo", eng: "two", gen: "m", pos: "adj", ch: 15 },
+    { lat: "expecto", eng: "to look out for/wait for", gen: "x", pos: "v", ch: 15 },
+    { lat: "illuc", eng: "there/to that place", gen: "x", pos: "adv", ch: 15 },
+    { lat: "mille", eng: "thousand", gen: "x", pos: "adj", ch: 15 },
+    { lat: "novem", eng: "nine", gen: "x", pos: "adj", ch: 15 },
+    { lat: "nubes", eng: "cloud", gen: "f", pos: "n", ch: 15 },
+    { lat: "octo", eng: "eight", gen: "x", pos: "adj", ch: 15 },
+    { lat: "onus", eng: "load/burden", gen: "n", pos: "n", ch: 15 },
+    { lat: "plaustrum", eng: "wagon/cart", gen: "n", pos: "n", ch: 15 },
+    { lat: "praeterea", eng: "besides", gen: "x", pos: "adv", ch: 15 },
+    { lat: "procul", eng: "in the distance/far off", gen: "x", pos: "adv", ch: 15 },
+    { lat: "pulvis", eng: "dust", gen: "m", pos: "n", ch: 15 },
+    { lat: "quattuor", eng: "four", gen: "x", pos: "adj", ch: 15 },
+    { lat: "quinque", eng: "five", gen: "x", pos: "adj", ch: 15 },
+    { lat: "septem", eng: "seven", gen: "x", pos: "adj", ch: 15 },
+    { lat: "sex", eng: "six", gen: "x", pos: "adj", ch: 15 },
+    { lat: "tantum", eng: "only", gen: "x", pos: "adv", ch: 15 },
+    { lat: "tardus", eng: "slow", gen: "m", pos: "adj", ch: 15 },
+    { lat: "tres", eng: "three", gen: "m", pos: "adj", ch: 15 },
+    { lat: "unus", eng: "one", gen: "m", pos: "adj", ch: 15 },
+    { lat: "veho", eng: "to carry/transport", gen: "x", pos: "v", ch: 15 },
+    { lat: "villa", eng: "country house", gen: "f", pos: "n", ch: 15 },
+
+    // --- CHAPTER 16 VOCABULARY ---
+    { lat: "ardeo", eng: "to burn", gen: "x", pos: "v", ch: 16 },
+    { lat: "cornu", eng: "horn/wing (of an army)", gen: "n", pos: "n", ch: 16 },
+    { lat: "domus", eng: "house/home", gen: "f", pos: "n", ch: 16 },
+    { lat: "exercitus", eng: "army", gen: "m", pos: "n", ch: 16 },
+    { lat: "fluctus", eng: "wave", gen: "m", pos: "n", ch: 16 },
+    { lat: "genu", eng: "knee", gen: "n", pos: "n", ch: 16 },
+    { lat: "impetus", eng: "attack/impetus", gen: "m", pos: "n", ch: 16 },
+    { lat: "lego", eng: "to read/choose", gen: "x", pos: "v", ch: 16 },
+    { lat: "licet", eng: "it is permitted", gen: "x", pos: "v", ch: 16 },
+    { lat: "manus", eng: "hand/band of men", gen: "f", pos: "n", ch: 16 },
+    { lat: "metus", eng: "fear/dread", gen: "m", pos: "n", ch: 16 },
+    { lat: "opprimo", eng: "to overwhelm/crush", gen: "x", pos: "v", ch: 16 },
+    { lat: "passus", eng: "pace/step", gen: "m", pos: "n", ch: 16 },
+    { lat: "senatus", eng: "senate", gen: "m", pos: "n", ch: 16 },
+    { lat: "statim", eng: "immediately", gen: "x", pos: "adv", ch: 16 },
+    { lat: "tamen", eng: "however/nevertheless", gen: "x", pos: "adv", ch: 16 },
+    { lat: "tumultus", eng: "uproar/confusion", gen: "m", pos: "n", ch: 16 },
+    { lat: "vultus", eng: "face/expression", gen: "m", pos: "n", ch: 16 },
+
+    // --- CHAPTER 17 VOCABULARY ---
+    { lat: "dies", eng: "day", gen: "m", pos: "n", ch: 17 },
+    { lat: "facies", eng: "face/appearance", gen: "f", pos: "n", ch: 17 },
+    { lat: "fides", eng: "faith/trust", gen: "f", pos: "n", ch: 17 },
+    { lat: "humus", eng: "ground", gen: "f", pos: "n", ch: 17 },
+    { lat: "incendium", eng: "fire", gen: "n", pos: "n", ch: 17 },
+    { lat: "litus", eng: "shore", gen: "n", pos: "n", ch: 17 },
+    { lat: "mare", eng: "sea", gen: "n", pos: "n", ch: 17 },
+    { lat: "meridies", eng: "midday/noon", gen: "m", pos: "n", ch: 17 },
+    { lat: "persuadeo", eng: "to persuade", gen: "x", pos: "v", ch: 17 },
+    { lat: "precor", eng: "to pray/beg", gen: "x", pos: "v", ch: 17 },
+    { lat: "publicus", eng: "public", gen: "m", pos: "adj", ch: 17 },
+    { lat: "res", eng: "thing/matter/affair", gen: "f", pos: "n", ch: 17 },
+    { lat: "species", eng: "sight/appearance", gen: "f", pos: "n", ch: 17 },
+    { lat: "spes", eng: "hope", gen: "f", pos: "n", ch: 17 },
+    { lat: "supero", eng: "to overcome/surpass", gen: "x", pos: "v", ch: 17 },
+    { lat: "tempto", eng: "to try/attempt", gen: "x", pos: "v", ch: 17 },
+    { lat: "tristis", eng: "sad", gen: "m", pos: "adj", ch: 17 },
+    { lat: "ventus", eng: "wind", gen: "m", pos: "n", ch: 17 },
+
+    // --- CHAPTER 18 VOCABULARY ---
+    { lat: "colloquium", eng: "conversation", gen: "n", pos: "n", ch: 18 },
+    { lat: "conspectus", eng: "sight/view", gen: "m", pos: "n", ch: 18 },
+    { lat: "excito", eng: "to wake/rouse", gen: "x", pos: "v", ch: 18 },
+    { lat: "infelix", eng: "unhappy/unlucky", gen: "m", pos: "adj", ch: 18 },
+    { lat: "ita", eng: "thus/so", gen: "x", pos: "adv", ch: 18 },
+    { lat: "lucerna", eng: "lamp", gen: "f", pos: "n", ch: 18 },
+    { lat: "maritus", eng: "husband", gen: "m", pos: "n", ch: 18 },
+    { lat: "oppugno", eng: "to attack", gen: "x", pos: "v", ch: 18 },
+    { lat: "parentes", eng: "parents", gen: "m", pos: "n", ch: 18 },
+    { lat: "quaero", eng: "to look for/search", gen: "x", pos: "v", ch: 18 },
+    { lat: "sagitta", eng: "arrow", gen: "f", pos: "n", ch: 18 },
+    { lat: "si", eng: "if", gen: "x", pos: "conj", ch: 18 },
+    { lat: "somnus", eng: "sleep", gen: "m", pos: "n", ch: 18 },
+    { lat: "vox", eng: "voice", gen: "f", pos: "n", ch: 18 },
+
+    // --- CHAPTER 19 VOCABULARY ---
+    { lat: "argumentum", eng: "proof/evidence/argument", gen: "n", pos: "n", ch: 19 },
+    { lat: "at", eng: "but/mind you", gen: "x", pos: "conj", ch: 19 },
+    { lat: "auctor", eng: "author/originator", gen: "m", pos: "n", ch: 19 },
+    { lat: "beneficium", eng: "benefit/kindness/favor", gen: "n", pos: "n", ch: 19 },
+    { lat: "certus", eng: "definite/sure/certain", gen: "m", pos: "adj", ch: 19 },
+    { lat: "contra", eng: "against", gen: "x", pos: "prep", ch: 19 },
+    { lat: "delecto", eng: "to delight/charm/please", gen: "x", pos: "v", ch: 19 },
+    { lat: "Graecia", eng: "Greece", gen: "f", pos: "n", ch: 19 },
+    { lat: "gravis", eng: "heavy/serious/severe", gen: "m", pos: "adj", ch: 19 },
+    { lat: "iam", eng: "now/already/soon", gen: "x", pos: "adv", ch: 19 },
+    { lat: "immortalis", eng: "immortal", gen: "m", pos: "adj", ch: 19 },
+    { lat: "iudex", eng: "judge/juror", gen: "m", pos: "n", ch: 19 },
+    { lat: "iudicium", eng: "judgment/decision/trial", gen: "n", pos: "n", ch: 19 },
+    { lat: "libero", eng: "to free/liberate", gen: "x", pos: "v", ch: 19 },
+    { lat: "nisi", eng: "if not/unless/except", gen: "x", pos: "conj", ch: 19 },
+    { lat: "quae", eng: "which? (fem adj)", gen: "f", pos: "adj", ch: 19 },
+    { lat: "qui", eng: "which? (masc adj)", gen: "m", pos: "adj", ch: 19 },
+    { lat: "quid", eng: "what?", gen: "n", pos: "n", ch: 19 },
+    { lat: "quis", eng: "who?", gen: "x", pos: "n", ch: 19 },
+    { lat: "quod", eng: "which? (neut adj)", gen: "n", pos: "adj", ch: 19 },
+    { lat: "scelus", eng: "evil deed/crime/wickedness", gen: "n", pos: "n", ch: 19 },
+
+    // --- CHAPTER 20 VOCABULARY ---
+    { lat: "abundo", eng: "to abound with", gen: "x", pos: "v", ch: 20 },
+    { lat: "celeriter", eng: "quickly", gen: "x", pos: "adv", ch: 20 },
+    { lat: "cogo", eng: "to force/compel/collect", gen: "x", pos: "v", ch: 20 },
+    { lat: "fortiter", eng: "bravely/forcefully", gen: "x", pos: "adv", ch: 20 },
+    { lat: "malo", eng: "to prefer", gen: "x", pos: "v", ch: 20 },
+    { lat: "mortalis", eng: "mortal/human", gen: "m", pos: "adj", ch: 20 },
+    { lat: "multitudo", eng: "multitude/great number/crowd", gen: "f", pos: "n", ch: 20 },
+    { lat: "nolo", eng: "to be unwilling/not want", gen: "x", pos: "v", ch: 20 },
+    { lat: "numquam", eng: "never", gen: "x", pos: "adv", ch: 20 },
+    { lat: "postulo", eng: "to demand/claim", gen: "x", pos: "v", ch: 20 },
+    { lat: "sacer", eng: "sacred", gen: "m", pos: "adj", ch: 20 },
+    { lat: "sapiens", eng: "wise/sensible", gen: "m", pos: "adj", ch: 20 },
+    { lat: "sino", eng: "to allow/permit", gen: "x", pos: "v", ch: 20 },
+    { lat: "superus", eng: "upper/higher/above", gen: "m", pos: "adj", ch: 20 },
+    { lat: "talis", eng: "such/of such a kind", gen: "m", pos: "adj", ch: 20 },
+    { lat: "veto", eng: "to forbid/order not", gen: "x", pos: "v", ch: 20 },
+    { lat: "volo", eng: "to wish/want/be willing", gen: "x", pos: "v", ch: 20 },
+
+    // --- CHAPTER 21 VOCABULARY ---
+    { lat: "accipio", eng: "to accept/receive", gen: "x", pos: "v", ch: 21 },
+    { lat: "asper", eng: "rough/harsh", gen: "m", pos: "adj", ch: 21 },
+    { lat: "atque", eng: "and also/and even", gen: "x", pos: "conj", ch: 21 },
+    { lat: "casa", eng: "house/cottage/hut", gen: "f", pos: "n", ch: 21 },
+    { lat: "causa", eng: "cause/reason/case", gen: "f", pos: "n", ch: 21 },
+    { lat: "causa", eng: "for the sake of/on account of", gen: "x", pos: "prep", ch: 21 },
+    { lat: "contineo", eng: "to hold together/contain", gen: "x", pos: "v", ch: 21 },
+    { lat: "fenestra", eng: "window", gen: "f", pos: "n", ch: 21 },
+    { lat: "finis", eng: "end/limit/boundary", gen: "m", pos: "n", ch: 21 },
+    { lat: "gens", eng: "clan/race/nation/people", gen: "f", pos: "n", ch: 21 },
+    { lat: "iterum", eng: "again/a second time", gen: "x", pos: "adv", ch: 21 },
+    { lat: "mundus", eng: "world/universe", gen: "m", pos: "n", ch: 21 },
+    { lat: "rapio", eng: "to seize/snatch", gen: "x", pos: "v", ch: 21 },
+    { lat: "scio", eng: "to know", gen: "x", pos: "v", ch: 21 },
+    { lat: "Troia", eng: "Troy", gen: "f", pos: "n", ch: 21 },
+    { lat: "verso", eng: "to turn", gen: "x", pos: "v", ch: 21 },
+    { lat: "vicinus", eng: "neighbor", gen: "m", pos: "n", ch: 21 },
+    { lat: "vulgus", eng: "common people/mob/rabble", gen: "n", pos: "n", ch: 21 }
+];
+
+const sentencesDB = [
+    // --- CHAPTER 1 SENTENCES ---
+    { lat: ["agricola", "terram", "amat"], eng: "The farmer loves the land", ch: 1 },
+    { lat: ["nauta", "aquam", "amat"], eng: "The sailor loves the water", ch: 1 },
+    { lat: ["lupa", "puellam", "curat"], eng: "The she-wolf takes care of the girl", ch: 1 },
+    { lat: ["poeta", "filiam", "amat"], eng: "The poet loves the daughter", ch: 1 },
+    { lat: ["athleta", "bene", "ambulat"], eng: "The athlete walks well", ch: 1 },
+    { lat: ["filia", "est", "puella"], eng: "The daughter is a girl", ch: 1 },
+    { lat: ["itaque", "nautae", "sunt"], eng: "And so there are sailors", ch: 1 },
+    { lat: ["Roma", "est", "terra"], eng: "Rome is a land", ch: 1 },
+
+    // --- CHAPTER 2 SENTENCES ---
+    { lat: ["nautae", "in", "agro", "laborant"], eng: "The sailors are working in the field", ch: 2 },
+    { lat: ["viri", "equos", "spectant"], eng: "The men are watching the horses", ch: 2 },
+    { lat: ["filius", "dominum", "timet"], eng: "The son fears the master", ch: 2 },
+    { lat: ["poeta", "amico", "donum", "dat"], eng: "The poet gives a gift to his friend", ch: 2 },
+    { lat: ["lupa", "servum", "non", "amat"], eng: "The she-wolf does not like the servant", ch: 2 },
+    { lat: ["puer", "legatum", "vocat"], eng: "The boy is calling the lieutenant", ch: 2 },
+    { lat: ["servi", "gladios", "portant"], eng: "The slaves are carrying swords", ch: 2 },
+    { lat: ["nuntius", "fabulam", "narrat"], eng: "The messenger tells a story", ch: 2 },
+    { lat: ["vir", "pueros", "monet"], eng: "The man warns the boys", ch: 2 },
+    { lat: ["deus", "terram", "curat"], eng: "God takes care of the land", ch: 2 },
+
+    // --- CHAPTER 3 SENTENCES ---
+    { lat: ["puer", "bonus", "frumentum", "non", "exspectat"], eng: "The good boy does not wait for the grain", ch: 3 },
+    { lat: ["multa", "oppida", "in", "agris", "videmus"], eng: "We see many towns in the fields", ch: 3 },
+    { lat: ["filia", "mea", "donum", "magnum", "dat"], eng: "My daughter gives the large gift", ch: 3 },
+    { lat: ["bellum", "est", "periculum", "magnum"], eng: "War is a great danger", ch: 3 },
+    { lat: ["servus", "malus", "lupam", "feram", "portat"], eng: "The evil slave carries the savage she-wolf", ch: 3 },
+    { lat: ["caelum", "pulchrum", "est", "altum"], eng: "The beautiful sky is high", ch: 3 },
+    { lat: ["regnum", "magnum", "laudatis"], eng: "You all praise the great kingdom", ch: 3 },
+    { lat: ["verba", "longa", "timeo"], eng: "I fear the long words", ch: 3 },
+    { lat: ["equi", "feri", "sunt", "pulchri"], eng: "The wild horses are beautiful", ch: 3 },
+    { lat: ["dona", "magna", "sunt", "bona"], eng: "The large gifts are good", ch: 3 },
+
+    // --- CHAPTER 4 SENTENCES ---
+    { lat: ["vir", "profugae", "praemium", "non", "dat"], eng: "The man does not give a reward to the deserter", ch: 4 },
+    { lat: ["in", "castra", "Romanorum", "ambulant"], eng: "They walk into the camp of the Romans", ch: 4 },
+    { lat: ["consilium", "tamen", "non", "est", "iustum"], eng: "The plan, however, is not just", ch: 4 },
+    { lat: ["medicus", "venenum", "parare", "vult"], eng: "The doctor wants to prepare poison", ch: 4 },
+    { lat: ["iubet", "profugam", "vinculis", "vinciri"], eng: "He orders the deserter to be bound with chains", ch: 4 },
+
+    // --- CHAPTER 5 SENTENCES ---
+    { lat: ["Cicero", "Terentiae", "epistulam", "scribit"], eng: "Cicero writes a letter to Terentia", ch: 5 },
+    { lat: ["a", "malis", "viris", "non", "amamur"], eng: "We are not loved by bad men", ch: 5 },
+    { lat: ["familia", "in", "periculo", "magno", "est"], eng: "The family is in great danger", ch: 5 },
+    { lat: ["lacrimas", "tenere", "non", "possum"], eng: "I cannot hold back tears", ch: 5 },
+    { lat: ["auxilium", "ab", "amicis", "exspectatur"], eng: "Help is expected from friends", ch: 5 },
+
+    // --- CHAPTER 6 SENTENCES ---
+    { lat: ["Druides", "magnam", "scientiam", "habent"], eng: "The Druids have great knowledge", ch: 6 },
+    { lat: ["pueri", "multa", "discere", "possunt"], eng: "The boys are able to learn many things", ch: 6 },
+    { lat: ["memoria", "poetae", "est", "longa"], eng: "The memory of the poet is long", ch: 6 },
+    { lat: ["vita", "Gallorum", "non", "est", "facilis"], eng: "The life of the Gauls is not easy", ch: 6 },
+    { lat: ["litteris", "mandare", "non", "solent"], eng: "They are not accustomed to entrust (it) to letters", ch: 6 },
+
+    // --- CHAPTER 7 SENTENCES ---
+    { lat: ["poeta", "putat", "passerem", "esse", "bellam"], eng: "The poet thinks that the sparrow is beautiful", ch: 7 },
+    { lat: ["puella", "passerem", "plus", "quam", "oculos", "amat"], eng: "The girl loves the sparrow more than her eyes", ch: 7 },
+    { lat: ["senes", "severi", "puellam", "vident"], eng: "The strict old men see the girl", ch: 7 },
+    { lat: ["Catullus", "videt", "passerem", "esse", "in", "gremio"], eng: "Catullus sees that the sparrow is in the lap", ch: 7 },
+    { lat: ["soror", "mea", "dicit", "pacem", "esse", "bonam"], eng: "My sister says that peace is good", ch: 7 },
+
+    // --- CHAPTER 8 SENTENCES ---
+    { lat: ["dux", "milites", "vincere", "hostes", "iubet"], eng: "The leader orders the soldiers to defeat the enemies", ch: 8 },
+    { lat: ["muros", "ligneos", "Athenarum", "aedificamus"], eng: "We are building the wooden walls of Athens", ch: 8 },
+    { lat: ["homines", "salutem", "in", "navibus", "petunt"], eng: "The men seek safety in ships", ch: 8 },
+    { lat: ["tandem", "Themistocles", "consilium", "capit"], eng: "Finally Themistocles makes a plan", ch: 8 },
+    { lat: ["Persas", "in", "bello", "vincere", "possumus"], eng: "We can defeat the Persians in war", ch: 8 },
+
+    // --- CHAPTER 9 SENTENCES ---
+    { lat: ["ille", "homo", "est", "civis", "Romanus"], eng: "That man is a Roman citizen", ch: 9 },
+    { lat: ["Cicero", "orationem", "habet"], eng: "Cicero delivers a speech", ch: 9 },
+    { lat: ["hic", "mons", "est", "magnus"], eng: "This mountain is large", ch: 9 },
+    { lat: ["coniuratio", "contra", "urbem", "paratur"], eng: "A conspiracy is being prepared against the city", ch: 9 },
+    { lat: ["corpus", "illius", "militis", "est", "forte"], eng: "The body of that soldier is strong", ch: 9 },
+
+    // --- CHAPTER 10 SENTENCES ---
+    { lat: ["Graeci", "urbem", "Troiam", "capiunt"], eng: "The Greeks capture the city of Troy", ch: 10 },
+    { lat: ["hostes", "equum", "ingentem", "faciunt"], eng: "The enemies make a huge horse", ch: 10 },
+    { lat: ["Troiani", "ab", "ignibus", "fugiunt"], eng: "The Trojans flee from the fires", ch: 10 },
+    { lat: ["dux", "fortis", "gladium", "iacit"], eng: "The brave leader throws a sword", ch: 10 },
+    { lat: ["omnes", "cives", "pacem", "cupiunt"], eng: "All citizens desire peace", ch: 10 },
+
+    // --- CHAPTER 11 SENTENCES ---
+    { lat: ["Dido", "Aeneam", "amabat"], eng: "Dido was loving Aeneas", ch: 11 },
+    { lat: ["regina", "ad", "litus", "ambulabat"], eng: "The queen was walking to the shore", ch: 11 },
+    { lat: ["Aeneas", "Troianos", "ad", "Italiam", "ducebat"], eng: "Aeneas was leading the Trojans to Italy", ch: 11 },
+    { lat: ["tempestas", "naves", "delebat"], eng: "The storm was destroying the ships", ch: 11 },
+    { lat: ["Graeci", "Troiam", "obsidebant"], eng: "The Greeks were besieging Troy", ch: 11 },
+
+    // --- CHAPTER 12 SENTENCES ---
+    { lat: ["ego", "sum", "civis", "Romanus"], eng: "I am a Roman citizen", ch: 12 },
+    { lat: ["tu", "es", "hostis", "populi"], eng: "You are an enemy of the people", ch: 12 },
+    { lat: ["Scaevola", "dextram", "in", "ignem", "ponit"], eng: "Scaevola puts his right hand into the fire", ch: 12 },
+    { lat: ["nos", "virtutem", "vestram", "laudamus"], eng: "We praise your courage", ch: 12 },
+    { lat: ["vos", "nobis", "pacem", "datis"], eng: "You give peace to us", ch: 12 },
+
+    // --- CHAPTER 13 SENTENCES ---
+    { lat: ["fur", "noctu", "in", "forum", "intrat"], eng: "The thief enters the forum at night", ch: 13 },
+    { lat: ["adulescens", "poma", "pulchra", "videt"], eng: "The young man sees beautiful fruits", ch: 13 },
+    { lat: ["pueri", "in", "via", "ludunt"], eng: "The boys are playing in the street", ch: 13 },
+    { lat: ["lex", "hominum", "fures", "punit"], eng: "The law of men punishes thieves", ch: 13 },
+    { lat: ["nos", "non", "sumus", "pauperes"], eng: "We are not poor", ch: 13 },
+
+    // --- CHAPTER 14 SENTENCES ---
+    { lat: ["rota", "fortunae", "semper", "vertitur"], eng: "The wheel of fortune is always turned", ch: 14 },
+    { lat: ["homo", "divitias", "magnas", "accipit"], eng: "The man receives great wealth", ch: 14 },
+    { lat: ["dux", "honores", "multos", "possidet"], eng: "The leader possesses many honors", ch: 14 },
+    { lat: ["nos", "axem", "rotae", "mutamus"], eng: "We are changing the axle of the wheel", ch: 14 },
+    { lat: ["tu", "errores", "meos", "reprehendis"], eng: "You blame my mistakes", ch: 14 },
+
+    // --- CHAPTER 15 SENTENCES ---
+    { lat: ["plaustrum", "onus", "magnum", "vehit"], eng: "The wagon carries a large load", ch: 15 },
+    { lat: ["quattuor", "rotae", "sunt", "tardae"], eng: "The four wheels are slow", ch: 15 },
+    { lat: ["nubes", "in", "caelo", "apparent"], eng: "Clouds appear in the sky", ch: 15 },
+    { lat: ["agricola", "bovile", "aperit"], eng: "The farmer opens the cattle shed", ch: 15 },
+    { lat: ["urbs", "est", "procul", "a", "villa"], eng: "The city is far from the country house", ch: 15 },
+
+    // --- CHAPTER 16 SENTENCES ---
+    { lat: ["cornua", "exercitus", "sunt", "valida"], eng: "The wings of the army are strong", ch: 16 },
+    { lat: ["manus", "mea", "domum", "aedificat"], eng: "My hand builds the house", ch: 16 },
+    { lat: ["nos", "metum", "gravium", "fluctuum", "habemus"], eng: "We have fear of the heavy waves", ch: 16 },
+    { lat: ["impetus", "hostium", "senatum", "terret"], eng: "The attack of the enemies frightens the senate", ch: 16 },
+    { lat: ["vultus", "militis", "erat", "tristis"], eng: "The face of the soldier was sad", ch: 16 },
+
+    // --- CHAPTER 17 SENTENCES ---
+    { lat: ["ignis", "multas", "res", "delet"], eng: "Fire destroys many things", ch: 17 },
+    { lat: ["illo", "die", "spem", "non", "habebant"], eng: "On that day they did not have hope", ch: 17 },
+    { lat: ["fides", "tua", "me", "servat"], eng: "Your faith saves me", ch: 17 },
+    { lat: ["ventus", "naves", "ad", "litus", "agebat"], eng: "The wind was driving the ships to the shore", ch: 17 },
+    { lat: ["facies", "puellae", "est", "pulchra"], eng: "The face of the girl is beautiful", ch: 17 },
+
+    // --- CHAPTER 18 SENTENCES ---
+    { lat: ["Psyche", "maritum", "suum", "non", "videt"], eng: "Psyche does not see her husband", ch: 18 },
+    { lat: ["vox", "parentum", "est", "grata"], eng: "The voice of parents is pleasing", ch: 18 },
+    { lat: ["illa", "lucerna", "somnum", "meum", "turbat"], eng: "That lamp disturbs my sleep", ch: 18 },
+    { lat: ["puer", "sagittas", "acutas", "habet"], eng: "The boy has sharp arrows", ch: 18 },
+    { lat: ["mater", "filiam", "quaerit"], eng: "The mother searches for her daughter", ch: 18 },
+
+    // --- CHAPTER 19 SENTENCES ---
+    { lat: ["quis", "scelus", "fecit"], eng: "Who committed the crime?", ch: 19 },
+    { lat: ["quod", "beneficium", "accepisti"], eng: "What kindness did you receive?", ch: 19 },
+    { lat: ["iudex", "certum", "iudicium", "dedit"], eng: "The judge gave a certain judgment", ch: 19 },
+    { lat: ["auctor", "illius", "libri", "est", "notus"], eng: "The author of that book is known", ch: 19 },
+    { lat: ["familia", "metu", "gravi", "liberata", "est"], eng: "The family was freed from heavy fear", ch: 19 },
+
+    // --- CHAPTER 20 SENTENCES ---
+    { lat: ["multitudo", "in", "foro", "clamat"], eng: "The crowd shouts in the forum", ch: 20 },
+    { lat: ["dux", "milites", "fortiter", "pugnare", "iussit"], eng: "The leader ordered the soldiers to fight bravely", ch: 20 },
+    { lat: ["nolo", "hoc", "facere"], eng: "I do not want to do this", ch: 20 },
+    { lat: ["gravis", "est", "ira", "superorum"], eng: "Serious is the anger of the gods above", ch: 20 },
+    { lat: ["celeriter", "ad", "urbem", "cucurrimus"], eng: "We ran quickly to the city", ch: 20 },
+
+    // --- CHAPTER 21 SENTENCES ---
+    { lat: ["casa", "vicini", "est", "parva"], eng: "The neighbor's cottage is small", ch: 21 },
+    { lat: ["fenestrae", "apertae", "sunt"], eng: "The windows are open", ch: 21 },
+    { lat: ["mundus", "est", "magnus"], eng: "The world is large", ch: 21 },
+    { lat: ["navis", "ad", "finem", "maris", "navigat"], eng: "The ship sails to the end of the sea", ch: 21 },
+    { lat: ["vulgus", "multa", "non", "scit"], eng: "The common people do not know many things", ch: 21 }
+];
+
+
+
+
+    // NEW: Grammar Database for Conjugations and Declensions
+    const grammarDB = [
+        // Declensions (Nouns)
+        { 
+            id: 'decl-1', type: 'decl', name: '1st Declension', 
+            questions: [
+                { q: "Nom. Sing. (Ending)", a: "-a" },
+                { q: "Gen. Sing. (Ending)", a: "-ae" },
+                { q: "Dat. Sing. (Ending)", a: "-ae" },
+                { q: "Acc. Sing. (Ending)", a: "-am" },
+                { q: "Abl. Sing. (Ending)", a: "-a" },
+                { q: "Nom. Plural (Ending)", a: "-ae" },
+                { q: "Gen. Plural (Ending)", a: "-arum" },
+                { q: "Acc. Plural (Ending)", a: "-as" },
+                { q: "Abl. Plural (Ending)", a: "-is" }
+            ]
+        },
+        { 
+            id: 'decl-2m', type: 'decl', name: '2nd Decl. (Masc)', 
+            questions: [
+                { q: "Nom. Sing. (Ending)", a: "-us" },
+                { q: "Gen. Sing. (Ending)", a: "-i" },
+                { q: "Acc. Sing. (Ending)", a: "-um" },
+                { q: "Abl. Sing. (Ending)", a: "-o" },
+                { q: "Nom. Plural (Ending)", a: "-i" },
+                { q: "Acc. Plural (Ending)", a: "-os" }
+            ]
+        },
+        // Conjugations (Verbs)
+        {
+            id: 'conj-pres', type: 'conj', name: 'Present Tense',
+            questions: [
+                { q: "I... (1st Sg)", a: "-o" },
+                { q: "You... (2nd Sg)", a: "-s" },
+                { q: "He/She... (3rd Sg)", a: "-t" },
+                { q: "We... (1st Pl)", a: "-mus" },
+                { q: "You (Pl)... (2nd Pl)", a: "-tis" },
+                { q: "They... (3rd Pl)", a: "-nt" }
+            ]
+        }
     ];
 
-    // --- SENTENCE DB ---
-    const SENTENCE_DB = [
-        { eng: "The old man loves peace.", lat: ["Senex", "pacem", "amat"] },
-        { eng: "My sister has a bird.", lat: ["Soror", "mea", "passerem", "habet"] },
-        { eng: "I think about love.", lat: ["De", "amore", "cogito"] },
-        { eng: "I see my eyes.", lat: ["Oculos", "meos", "video"] },
-        { eng: "The mistress loves the sister.", lat: ["Domina", "sororem", "amat"] },
-        { eng: "The words are strict.", lat: ["Verba", "sunt", "severa"] },
-        { eng: "The farmer sees the land.", lat: ["Agricola", "terram", "videt"] },
-        { eng: "The girl loves the sailor.", lat: ["Puella", "nautam", "amat"] },
-        { eng: "The boy holds the book.", lat: ["Puer", "librum", "tenet"] },
-        { eng: "The poet tells a story.", lat: ["Poeta", "fabulam", "narrat"] },
-        { eng: "The athlete fears the water.", lat: ["Athleta", "aquam", "timet"] },
-        { eng: "Rome is beautiful.", lat: ["Roma", "est", "pulchra"] }
-    ];
-
-    // --- STATE VARIABLES ---
+    // --- STATE MANAGEMENT ---
     let state = {
-        activity: 'quiz',
-        pool: [],
-        missed: [],
+        xp: 0,
+        level: 1,
+        gameMode: null,
+        deck: [], 
+        fullDeckBackup: [], 
+        sessionMissed: [], // Tracks misses in CURRENT round (for immediate review)
+        persistentMissed: [], // Tracks misses across ALL time
         index: 0,
         score: 0,
-        totalXP: 0,
-        settings: {
-            mode: 'multiple',
-            direction: 'lat-eng',
-            chapter: 'all'
-        },
-        savedMissed: [],
-        
-        // Game Specifics
-        mmWord: "", mmGuesses: [], mmWrongCount: 0,
-        sortItem: null,
-        isCardFlipped: false,
-        calcVerb: null, calcPerson: 0, 
-        buildCurrent: null, buildUserOrder: [] 
+        flipped: false,
+        sorterMode: 'gen', 
+        buildCurrent: null,
+        buildUserOrder: []
     };
 
-    const screens = {
-        start: document.getElementById('start-screen'),
-        quiz: document.getElementById('quiz-screen'),
-        macman: document.getElementById('macman-screen'),
-        sort: document.getElementById('sort-screen'),
-        cards: document.getElementById('cards-screen'),
-        calc: document.getElementById('calc-screen'),
-        build: document.getElementById('build-screen'),
-        result: document.getElementById('result-screen')
+    // --- INITIALIZATION ---
+    window.onload = function() {
+        populateChapterSelects();
+        loadXP();
+        loadPersistentMissed();
     };
 
-    // --- PERSISTENCE ---
-    const STORAGE_KEY = 'maclatin_save_v5';
-    function loadData() {
-        const json = localStorage.getItem(STORAGE_KEY);
-        if (json) {
-            try {
-                const data = JSON.parse(json);
-                state.savedMissed = data.missed || [];
-                state.totalXP = data.totalXP || 0;
-                
-                // Update UI
-                updateXPDisplay();
-                if (state.savedMissed.length > 0) {
-                    document.getElementById('saved-data-notice').style.display = 'block';
-                }
-            } catch (e) { }
+    function populateChapterSelects() {
+        const chapters = [...new Set(vocabDB.map(i => i.ch))].sort((a,b)=>a-b);
+        const startSel = document.getElementById('chapter-start');
+        const endSel = document.getElementById('chapter-end');
+        
+        chapters.forEach(c => {
+            let opt1 = new Option(c, c);
+            let opt2 = new Option(c, c);
+            startSel.add(opt1);
+            endSel.add(opt2);
+        });
+
+        startSel.value = Math.min(...chapters);
+        endSel.value = Math.max(...chapters);
+
+        startSel.addEventListener('change', () => {
+            if(parseInt(startSel.value) > parseInt(endSel.value)) endSel.value = startSel.value;
+        });
+        endSel.addEventListener('change', () => {
+            if(parseInt(endSel.value) < parseInt(startSel.value)) startSel.value = endSel.value;
+        });
+    }
+
+    // --- STORAGE & PERSISTENCE ---
+
+    function loadPersistentMissed() {
+        const stored = localStorage.getItem('maclatin_missed');
+        if (stored) {
+            state.persistentMissed = JSON.parse(stored);
+        }
+        updateMissedCountDisplay();
+    }
+
+    function savePersistentMissed() {
+        localStorage.setItem('maclatin_missed', JSON.stringify(state.persistentMissed));
+        updateMissedCountDisplay();
+    }
+
+    function updateMissedCountDisplay() {
+        const sel = document.getElementById('deck-source');
+        // Update the option text without destroying selection
+        sel.options[1].text = `Missed List (${state.persistentMissed.length})`;
+    }
+
+    function addToMissed(item) {
+        // Avoid duplicates. Identify by 'lat' and 'eng'
+        const exists = state.persistentMissed.some(i => i.lat === item.lat && i.eng === item.eng);
+        if (!exists) {
+            state.persistentMissed.push(item);
+            savePersistentMissed();
         }
     }
-    
-    function saveData() {
-        const uniqueMissed = new Map();
-        state.savedMissed.forEach(item => uniqueMissed.set(item.lat, item));
-        state.missed.forEach(item => uniqueMissed.set(item.lat, item));
-        const toSave = Array.from(uniqueMissed.values());
-        
-        localStorage.setItem(STORAGE_KEY, JSON.stringify({ 
-            missed: toSave, 
-            totalXP: state.totalXP,
-            lastSaved: new Date().getTime() 
-        }));
-        
-        state.savedMissed = toSave;
-        updateXPDisplay();
+
+    function removeFromMissed(item) {
+        state.persistentMissed = state.persistentMissed.filter(i => !(i.lat === item.lat && i.eng === item.eng));
+        savePersistentMissed();
     }
 
-    function resetData() {
-        if(confirm("Are you sure you want to delete your XP and saved items? This cannot be undone.")) {
-            localStorage.removeItem(STORAGE_KEY);
-            state.totalXP = 0;
-            state.savedMissed = [];
-            state.missed = [];
-            updateXPDisplay();
-            document.getElementById('saved-data-notice').style.display = 'none';
-            alert("Data reset complete.");
+    // --- GAME ENGINE ---
+
+    function filterVocab() {
+        const source = document.getElementById('deck-source').value;
+
+        if (source === 'missed') {
+            // Return copy of missed words
+            return [...state.persistentMissed];
+        } else {
+            // Standard Chapter Filter
+            const start = parseInt(document.getElementById('chapter-start').value);
+            const end = parseInt(document.getElementById('chapter-end').value);
+            return vocabDB.filter(w => w.ch >= start && w.ch <= end);
         }
     }
 
-    function addXP(amount) {
-        state.totalXP += amount;
-        saveData();
-    }
-
-    function updateXPDisplay() {
-        document.getElementById('xp-display').textContent = `TOTAL XP: ${state.totalXP}`;
-    }
-
-    window.onload = function() { loadData(); };
-
-    // --- MENU LOGIC ---
-    function setActivity(act) {
-        state.activity = act;
-        document.querySelectorAll('.activity-btn').forEach(b => b.classList.remove('selected'));
-        document.getElementById(`btn-act-${act}`).classList.add('selected');
-        
-        document.getElementById('quiz-settings').style.display = (act === 'quiz') ? 'block' : 'none';
-        document.getElementById('calc-note').style.display = (act === 'calc') ? 'block' : 'none';
-    }
-
-    function showScreen(name) {
-        Object.values(screens).forEach(s => s.classList.remove('active'));
-        screens[name].classList.add('active');
-        // Refresh XP on menu return
-        if(name === 'start') updateXPDisplay();
-    }
-
-    function shuffle(array) {
-        for (let i = array.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [array[i], array[j]] = [array[j], array[i]];
-        }
-        return array;
-    }
-
-    // --- GAME START ---
-    function startGame(isReview) {
-        state.settings.chapter = document.getElementById('chapter-select').value;
-        state.settings.mode = document.getElementById('mode-select').value;
-        state.settings.direction = document.getElementById('direction-select').value;
-        state.missed = [];
+    function initGame(mode) {
+        state.gameMode = mode;
+        state.sessionMissed = [];
         state.score = 0;
         state.index = 0;
+        
+        const source = document.getElementById('deck-source').value;
+        let deck = [];
 
-        // Route
-        if (state.activity === 'build') {
-            state.pool = shuffle([...SENTENCE_DB]); 
-            startBuilder();
+        // Build Deck based on mode
+        if (mode === 'builder') {
+             // Builder currently only supports chapter based (sentences not in persistent list usually)
+             // We'll fallback to chapters for now unless we add sentences to persistent list
+             const start = parseInt(document.getElementById('chapter-start').value);
+             const end = parseInt(document.getElementById('chapter-end').value);
+             deck = sentencesDB.filter(s => s.ch >= start && s.ch <= end);
+        } else if (mode.startsWith('sorter') || mode === 'flashcards' || mode === 'input') {
+            deck = filterVocab();
+            if (mode === 'sorter-gen') deck = deck.filter(w => w.gen !== 'x');
+        } else if (mode.startsWith('grammar')) {
+            // Grammar modes usually don't mix with vocab missed list well unless strictly filtered
+            // For now, if "Missed" selected, we filter missed list for grammar items?
+            // Or just allow grammar questions to be added to missed list? Yes.
+            if (source === 'missed') {
+                deck = state.persistentMissed.filter(i => i.displayType === 'grammar');
+                if (mode === 'grammar-decl') deck = deck.filter(i => i.context.includes('Decl'));
+                if (mode === 'grammar-conj') deck = deck.filter(i => i.context.includes('Tense'));
+            } else {
+                // Flatten grammar DB based on type
+                const type = mode === 'grammar-decl' ? 'decl' : 'conj';
+                const blocks = grammarDB.filter(g => g.type === type);
+                blocks.forEach(block => {
+                    block.questions.forEach(q => {
+                        deck.push({ 
+                            lat: q.q, eng: q.a, displayType: 'grammar', context: block.name 
+                        });
+                    });
+                });
+            }
+        }
+
+        if(deck.length === 0) {
+            alert(source === 'missed' ? "No missed items found for this activity!" : "No items found for this selection!");
             return;
         }
 
-        // Build Pool for Vocab Games
-        let pool = [];
-        if (isReview) {
-            pool = [...state.savedMissed];
-        } else {
-            if (state.settings.chapter === 'all') {
-                pool = [...VOCAB_DB];
-            } else {
-                pool = VOCAB_DB.filter(item => item.ch == state.settings.chapter);
-            }
-        }
+        // Shuffle and Store
+        state.deck = deck.sort(() => Math.random() - 0.5);
+        state.fullDeckBackup = [...state.deck];
 
-        // Filters
-        if (state.activity === 'sort') {
-            pool = pool.filter(item => item.gender);
-            if(pool.length === 0) return alert("No words with gender in this selection.");
-        } 
-        else if (state.activity === 'calc') {
-            pool = pool.filter(item => item.eng.startsWith("to ") && item.lat.endsWith("o"));
-            if(pool.length === 0) return alert("No conjugatable verbs in this selection (Try Ch 2, 4, 5, 6).");
-        }
+        // UI Switch
+        document.getElementById('menu-view').style.display = 'none';
+        document.getElementById('game-over').classList.remove('active');
+        document.querySelectorAll('.game-view').forEach(el => el.classList.remove('active'));
 
-        state.pool = shuffle(pool);
-
-        if (state.pool.length === 0) return alert("No vocabulary found.");
-
-        if (state.activity === 'quiz') startQuiz();
-        else if (state.activity === 'macman') startMacMan();
-        else if (state.activity === 'sort') startSort();
-        else if (state.activity === 'cards') startCards();
-        else if (state.activity === 'calc') startCalc();
-    }
-
-    function quitGame() {
-        if(confirm("Quit to Menu?")) {
-            if (state.activity !== 'cards') saveData(); 
-            showStartScreen();
-        }
-    }
-    
-    function showStartScreen() { showScreen('start'); }
-    function reviewSavedMissed() { startGame(true); }
-    function reviewMissedImmediately() { state.savedMissed = [...state.missed]; startGame(true); }
-
-    // --- HELPER: End Game ---
-    function endGame() {
-        saveData();
-        showScreen('result');
-        const percentage = Math.round((state.score / (state.pool.length || 1)) * 100);
-        document.getElementById('final-score').textContent = `${percentage}%`;
-        
-        const list = document.getElementById('log-list');
-        list.innerHTML = '';
-        const container = document.getElementById('missed-container');
-        
-        if (state.missed.length > 0) {
-            container.style.display = 'flex'; 
-            state.missed.forEach(item => {
-                const li = document.createElement('li');
-                const lat = item.lat || item.lat; 
-                if (Array.isArray(lat)) {
-                    li.innerHTML = `<span>${lat.join(' ')}</span> <span>Sentence</span>`;
-                } else {
-                    li.innerHTML = `<span>${lat}</span> <span>${item.eng}</span>`;
-                }
-                list.appendChild(li);
-            });
-        } else {
-            container.style.display = 'none';
+        // Route to View
+        if (mode === 'flashcards') {
+            document.getElementById('game-flashcards').classList.add('active');
+            loadFlashcard();
+        } else if (mode === 'input' || mode.startsWith('grammar')) {
+            document.getElementById('game-input').classList.add('active');
+            loadInputRound();
+        } else if (mode === 'builder') {
+            document.getElementById('game-builder').classList.add('active');
+            loadBuilderRound();
+        } else if (mode.startsWith('sorter')) {
+            document.getElementById('game-sorter').classList.add('active');
+            state.sorterMode = mode === 'sorter-gen' ? 'gen' : 'pos';
+            initSorter();
         }
     }
 
-
-    // ==========================================
-    // === ACTIVITY: QUIZ =======================
-    // ==========================================
-    function startQuiz() { showScreen('quiz'); loadQuizQuestion(); }
-    function loadQuizQuestion() {
-        if (state.index >= state.pool.length) { endGame(); return; }
-        const item = state.pool[state.index];
-        document.getElementById('quiz-score').textContent = `Score: ${state.score}`;
-        document.getElementById('quiz-progress').textContent = `${state.index + 1} / ${state.pool.length}`;
-        document.getElementById('quiz-feedback').innerHTML = "";
-        
-        const isLat = state.settings.direction === 'lat-eng';
-        document.getElementById('quiz-word').textContent = isLat ? item.lat : item.eng;
-        document.getElementById('quiz-hint').textContent = isLat ? "(Latin)" : "(English)";
-        
-        const container = document.getElementById('quiz-input-area');
-        container.innerHTML = '';
-        
-        if (state.settings.mode === 'multiple') {
-            const grid = document.createElement('div');
-            grid.className = 'choices-grid';
-            let opts = [item].concat(shuffle(VOCAB_DB.filter(x => x!==item)).slice(0,5));
-            shuffle(opts).forEach(opt => {
-                const btn = document.createElement('button');
-                btn.className = 'btn';
-                btn.textContent = isLat ? opt.eng : opt.lat;
-                btn.onclick = () => {
-                    grid.querySelectorAll('button').forEach(b => b.disabled=true);
-                    if(opt===item) {
-                        state.score++;
-                        addXP(10); // XP
-                        btn.style.background="#000"; btn.style.color="#fff";
-                        document.getElementById('quiz-feedback').innerHTML = "<span class='correct'>Correct! (+10 XP)</span>";
-                        setTimeout(() => { state.index++; loadQuizQuestion(); }, 800);
-                    } else {
-                        state.missed.push(item);
-                        btn.style.textDecoration="line-through";
-                        document.getElementById('quiz-feedback').innerHTML = `<span class='incorrect'>Incorrect.</span> ${isLat ? item.eng : item.lat}`;
-                        setTimeout(() => { state.index++; loadQuizQuestion(); }, 2000);
-                    }
-                };
-                grid.appendChild(btn);
-            });
-            container.appendChild(grid);
-        } else {
-            const inp = document.createElement('input');
-            inp.type="text"; inp.autocomplete="off"; inp.placeholder="Type answer...";
-            const check = () => {
-                const val = inp.value.trim().toLowerCase();
-                const ans = isLat ? item.eng : item.lat;
-                const norm = ans.toLowerCase().replace(/^to\s+/,'').trim();
-                if(val===norm) {
-                    state.score++;
-                    addXP(15); // Harder
-                    document.getElementById('quiz-feedback').innerHTML = "<span class='correct'>Correct! (+15 XP)</span>";
-                    setTimeout(() => { state.index++; loadQuizQuestion(); }, 800);
-                } else {
-                    state.missed.push(item);
-                    document.getElementById('quiz-feedback').innerHTML = `<span class='incorrect'>Incorrect.</span> ${ans}`;
-                    setTimeout(() => { state.index++; loadQuizQuestion(); }, 2000);
-                }
-            };
-            inp.onkeydown=(e)=>{if(e.key==='Enter'&&inp.value)check();};
-            const sbtn = document.createElement('button'); sbtn.className='btn btn-block'; sbtn.innerText='Submit'; sbtn.style.marginTop='10px'; sbtn.onclick=()=>check();
-            container.appendChild(inp); container.appendChild(sbtn); inp.focus();
-        }
+    function returnToMenu() {
+        document.querySelectorAll('.game-view').forEach(el => el.classList.remove('active'));
+        document.getElementById('game-over').classList.remove('active');
+        document.getElementById('menu-view').style.display = 'flex';
+        state.gameMode = null;
+        updateMissedCountDisplay(); // Refresh count
     }
 
-
-    // ==========================================
-    // === ACTIVITY: MACMAN =====================
-    // ==========================================
-    function startMacMan() { 
-        showScreen('macman'); 
-        const kb = document.querySelector('.keyboard-grid');
-        kb.innerHTML = '';
-        "abcdefghijklmnopqrstuvwxyz".split('').forEach(c => {
-            const b = document.createElement('button');
-            b.className='btn key-btn'; b.textContent=c; b.id=`key-${c}`;
-            b.onclick=()=>handleMMGuess(c); kb.appendChild(b);
-        });
-        loadMMRound();
-    }
-    function loadMMRound() {
-        if(state.index>=state.pool.length) { endGame(); return; }
-        const item = state.pool[state.index];
-        state.mmWord = item.lat.toLowerCase();
-        state.mmGuesses=[]; state.mmWrongCount=0;
-        drawMM(0); updateMMUI(item.eng);
-        document.querySelectorAll('.key-btn').forEach(b=>{b.disabled=false; b.style.background='#fff'; b.style.color='#000';});
-        document.getElementById('mm-feedback').textContent='';
-    }
-    function handleMMGuess(c) {
-        if(state.mmGuesses.includes(c)) return;
-        state.mmGuesses.push(c);
-        const btn = document.getElementById(`key-${c}`);
-        btn.disabled=true;
-        if(state.mmWord.includes(c)) {
-            btn.style.background='#000'; btn.style.color='#fff';
-            if(state.mmWord.split('').every(x=>state.mmGuesses.includes(x))) {
-                state.score++;
-                addXP(20);
-                document.getElementById('mm-feedback').innerHTML="<span class='correct'>Got it! (+20 XP)</span>";
-                setTimeout(()=>{state.index++; loadMMRound();},1000);
-            }
-        } else {
-            state.mmWrongCount++;
-            drawMM(state.mmWrongCount);
-            if(state.mmWrongCount>=6) {
-                state.missed.push(state.pool[state.index]);
-                document.getElementById('mm-word').textContent = state.mmWord.split('').join(' ');
-                document.getElementById('mm-feedback').innerHTML="<span class='incorrect'>Oh no!</span>";
-                setTimeout(()=>{state.index++; loadMMRound();},2000);
-            }
-        }
-        updateMMUI();
-    }
-    function updateMMUI(hint) {
-        document.getElementById('mm-word').textContent = state.mmWord.split('').map(c=>state.mmGuesses.includes(c)?c:'_').join(' ');
-        if(hint) document.getElementById('mm-hint').textContent = `Hint: ${hint}`;
-        document.getElementById('mm-score').textContent=`Wins: ${state.score}`;
-    }
-    function drawMM(s) {
-        const ctx = document.getElementById('macman-canvas').getContext('2d');
-        if(s===0) ctx.clearRect(0,0,150,150);
-        ctx.lineWidth=3; ctx.strokeStyle='#000'; ctx.beginPath();
-        if(s>=1){ctx.moveTo(20,100);ctx.lineTo(100,100);ctx.moveTo(40,100);ctx.lineTo(40,10);ctx.lineTo(80,10);ctx.lineTo(80,25);}
-        if(s>=2){ctx.moveTo(90,35);ctx.arc(80,35,10,0,Math.PI*2);}
-        if(s>=3){ctx.moveTo(80,45);ctx.lineTo(80,75);}
-        if(s>=4){ctx.moveTo(80,50);ctx.lineTo(65,65);}
-        if(s>=5){ctx.moveTo(80,50);ctx.lineTo(95,65);}
-        if(s>=6){ctx.moveTo(80,75);ctx.lineTo(65,95);ctx.moveTo(80,75);ctx.lineTo(95,95);}
-        ctx.stroke();
-    }
-
-
-    // ==========================================
-    // === ACTIVITY: SORT =======================
-    // ==========================================
-    function startSort() { showScreen('sort'); loadSortRound(); }
-    function loadSortRound() {
-        if(state.index>=state.pool.length) { endGame(); return; }
-        state.sortItem = state.pool[state.index];
-        document.getElementById('sort-word').textContent = state.sortItem.lat;
-        document.getElementById('sort-def').textContent = state.sortItem.eng;
-        document.getElementById('sort-score').textContent = `Score: ${state.score}`;
-        document.getElementById('sort-feedback').textContent='';
-        document.querySelectorAll('.folder-btn').forEach(b=>b.disabled=false);
-    }
-    function checkSort(sel) {
-        document.querySelectorAll('.folder-btn').forEach(b=>b.disabled=true);
-        const correct = state.sortItem.gender.toLowerCase();
-        if(sel===correct) {
-            state.score++;
-            addXP(5);
-            document.getElementById('sort-feedback').innerHTML="<span class='correct'>Correct! (+5 XP)</span>";
-            setTimeout(()=>{state.index++; loadSortRound();},600);
-        } else {
-            state.missed.push(state.sortItem);
-            document.getElementById('sort-feedback').innerHTML=`<span class='incorrect'>Oops.</span> It was ${correct.toUpperCase()}`;
-            setTimeout(()=>{state.index++; loadSortRound();},1500);
-        }
-    }
-
-
-    // ==========================================
-    // === ACTIVITY: HYPERCARD ==================
-    // ==========================================
-    function startCards() {
-        showScreen('cards');
+    function restartGame() {
+        state.sessionMissed = [];
         state.index = 0;
-        loadCard();
-    }
-    
-    function loadCard() {
-        const item = state.pool[state.index];
-        state.isCardFlipped = false;
-        document.getElementById('card-count').textContent = `Card ${state.index + 1} / ${state.pool.length}`;
-        updateCardFace(item);
+        state.score = 0;
+        state.deck = [...state.fullDeckBackup].sort(() => Math.random() - 0.5);
+        document.getElementById('game-over').classList.remove('active');
+        
+        // Re-route
+        const mode = state.gameMode;
+        if (mode === 'flashcards') {
+            document.getElementById('game-flashcards').classList.add('active');
+            loadFlashcard();
+        } else if (mode === 'input' || mode.startsWith('grammar')) {
+            document.getElementById('game-input').classList.add('active');
+            loadInputRound();
+        } else if (mode === 'builder') {
+            document.getElementById('game-builder').classList.add('active');
+            loadBuilderRound();
+        } else if (mode.startsWith('sorter')) {
+            document.getElementById('game-sorter').classList.add('active');
+            loadSorterRound();
+        }
     }
 
-    function updateCardFace(item) {
-        const main = document.getElementById('card-main');
-        const sub = document.getElementById('card-sub');
-        
-        if (!state.isCardFlipped) {
-            // Front: Latin
-            main.textContent = item.lat;
-            sub.textContent = "(Latin)";
-            main.style.fontStyle = 'normal';
-        } else {
-            // Back: English
-            main.textContent = item.eng;
-            sub.textContent = item.gender ? `Gender: ${item.gender.toUpperCase()}` : '';
-            main.style.fontStyle = 'italic';
+    function reviewMissedSession() {
+        // Reviews only what was missed in THIS session
+        state.deck = [...state.sessionMissed]; 
+        state.fullDeckBackup = [...state.sessionMissed]; 
+        state.sessionMissed = [];
+        state.index = 0;
+        state.score = 0;
+        document.getElementById('game-over').classList.remove('active');
+
+        const mode = state.gameMode;
+        if (mode === 'flashcards') {
+            document.getElementById('game-flashcards').classList.add('active');
+            loadFlashcard();
+        } else if (mode === 'input' || mode.startsWith('grammar')) {
+            document.getElementById('game-input').classList.add('active');
+            loadInputRound();
+        } else if (mode === 'builder') {
+            document.getElementById('game-builder').classList.add('active');
+            loadBuilderRound();
+        } else if (mode.startsWith('sorter')) {
+            document.getElementById('game-sorter').classList.add('active');
+            loadSorterRound();
         }
+    }
+
+    function showGameOver() {
+        document.querySelectorAll('.game-view').forEach(el => el.classList.remove('active'));
+        const go = document.getElementById('game-over');
+        go.classList.add('active');
+
+        const total = state.fullDeckBackup.length; 
+        const played = state.deck.length; 
+        const correct = played - state.sessionMissed.length;
+        const pct = Math.round((correct / played) * 100) || 0;
+
+        document.getElementById('stats-report').textContent = `Score: ${correct} / ${played} (${pct}%)`;
+
+        const btnReview = document.getElementById('btn-review-missed');
+        if (state.sessionMissed.length > 0) {
+            btnReview.style.display = 'block';
+            btnReview.textContent = `Review Just Missed (${state.sessionMissed.length})`;
+        } else {
+            btnReview.style.display = 'none';
+        }
+        
+        updateMissedCountDisplay();
+    }
+
+    // --- GAME LOGIC (UPDATED FOR PERSISTENCE) ---
+
+    function handleResult(isCorrect, item) {
+        const source = document.getElementById('deck-source').value;
+
+        if (isCorrect) {
+            addXP(10);
+            // If we are studying from "Missed List", correct answer removes it!
+            if (source === 'missed') {
+                removeFromMissed(item);
+            }
+        } else {
+            state.sessionMissed.push(item);
+            addToMissed(item); // Always add to persistent list on error
+        }
+    }
+
+    // --- FLASHCARDS ---
+    function loadFlashcard() {
+        if(state.index >= state.deck.length) { showGameOver(); return; }
+        
+        state.flipped = false;
+        const word = state.deck[state.index];
+        const displayMode = document.getElementById('display-mode').value;
+        
+        document.getElementById('fc-counter').textContent = `Card ${state.index + 1} / ${state.deck.length}`;
+        document.getElementById('fc-content').textContent = displayMode === 'lat' ? word.lat : word.eng;
+        document.getElementById('fc-content').style.fontWeight = 'normal';
     }
 
     function flipCard() {
-        state.isCardFlipped = !state.isCardFlipped;
-        updateCardFace(state.pool[state.index]);
-    }
+        state.flipped = !state.flipped;
+        const word = state.deck[state.index];
+        const displayMode = document.getElementById('display-mode').value;
+        const content = document.getElementById('fc-content');
 
-    function nextCard() {
-        state.index++;
-        if (state.index >= state.pool.length) state.index = 0; // Loop
-        loadCard();
-    }
-
-    function prevCard() {
-        state.index--;
-        if (state.index < 0) state.index = state.pool.length - 1; // Loop
-        loadCard();
-    }
-
-
-    // ==========================================
-    // === ACTIVITY: CONJUGATOR =================
-    // ==========================================
-    // Updated to support shuffling
-    const ENDINGS_DEF = [
-        { id: 'o', label: '-o / -m' },
-        { id: 's', label: '-s' },
-        { id: 't', label: '-t' },
-        { id: 'mus', label: '-mus' },
-        { id: 'tis', label: '-tis' },
-        { id: 'nt', label: '-nt' }
-    ];
-    // This order corresponds to person index 0-5
-    const ENDINGS_KEY = ['o', 's', 't', 'mus', 'tis', 'nt']; 
-    const PRONOUNS = ['Ego (I)', 'Tu (You)', 'Is/Ea (He/She)', 'Nos (We)', 'Vos (You pl)', 'Ei/Eae (They)'];
-
-    function startCalc() {
-        showScreen('calc');
-        loadCalcRound();
-    }
-
-    function loadCalcRound() {
-        if (state.index >= state.pool.length) { endGame(); return; }
-        
-        const item = state.pool[state.index];
-        let stem = "";
-        let conjType = 1; 
-        
-        if (item.lat.endsWith("eo")) {
-            conjType = 2;
-            stem = item.lat.substring(0, item.lat.length - 1); 
+        if(state.flipped) {
+            content.textContent = displayMode === 'lat' ? word.eng : word.lat;
+            content.style.fontWeight = 'bold';
         } else {
-            conjType = 1;
-            stem = item.lat.substring(0, item.lat.length - 1) + "a";
+            content.textContent = displayMode === 'lat' ? word.lat : word.eng;
+            content.style.fontWeight = 'normal';
+        }
+    }
+
+    function nextCard(correct) {
+        const word = state.deck[state.index];
+        handleResult(correct, word);
+        state.index++;
+        loadFlashcard();
+    }
+
+    // --- INPUT / MC / GRAMMAR GAME ---
+    function loadInputRound() {
+        if(state.index >= state.deck.length) { showGameOver(); return; }
+        
+        const word = state.deck[state.index];
+        const displayMode = document.getElementById('display-mode').value;
+        const isGrammar = state.gameMode.startsWith('grammar') || word.displayType === 'grammar';
+        const inputMode = document.getElementById('input-mode').value; 
+
+        document.getElementById('input-counter').textContent = `${state.index + 1} / ${state.deck.length}`;
+        document.getElementById('input-feedback').textContent = "";
+        
+        let prompt = "";
+        let answer = "";
+
+        if (isGrammar) {
+            prompt = `${word.context}: ${word.lat}`;
+            answer = word.eng;
+        } else {
+            prompt = displayMode === 'lat' ? word.eng : word.lat;
+            answer = displayMode === 'lat' ? word.lat : word.eng;
         }
 
-        state.calcVerb = { ...item, stem: stem, conjType: conjType };
-        state.calcPerson = Math.floor(Math.random() * 6);
+        document.getElementById('input-prompt').textContent = prompt;
 
-        document.getElementById('calc-display-top').textContent = `${item.lat} + ${PRONOUNS[state.calcPerson]}`;
+        const typeArea = document.getElementById('input-area-typed');
+        const mcArea = document.getElementById('input-area-mc');
+
+        if (inputMode === 'mc') {
+            typeArea.style.display = 'none';
+            mcArea.style.display = 'grid';
+            generateMCButtons(answer, isGrammar);
+        } else {
+            typeArea.style.display = 'block';
+            mcArea.style.display = 'none';
+            const inputEl = document.getElementById('user-input');
+            inputEl.value = "";
+            inputEl.focus();
+        }
+    }
+
+    function generateMCButtons(correctAnswer, isGrammar) {
+        const grid = document.getElementById('input-area-mc');
+        grid.innerHTML = "";
         
-        let displayStem = stem;
-        if (conjType === 1 && state.calcPerson === 0) {
-            displayStem = stem.substring(0, stem.length - 1);
+        let options = [correctAnswer];
+        // Distractors come from full backup to ensure relevance to current set
+        const pool = state.fullDeckBackup; 
+        
+        for(let i=0; i<3; i++) {
+            let rand = pool[Math.floor(Math.random() * pool.length)];
+            let val = "";
+            if (isGrammar || rand.displayType === 'grammar') val = rand.eng;
+            else {
+                const displayMode = document.getElementById('display-mode').value;
+                val = displayMode === 'lat' ? rand.lat : rand.eng;
+            }
+            
+            if (!options.includes(val)) options.push(val);
+            else i--; 
+            if(options.length > 3) break; 
         }
 
-        document.getElementById('calc-display-main').textContent = displayStem + "...";
-        document.getElementById('calc-feedback').innerHTML = "";
+        options.sort(() => Math.random() - 0.5);
 
-        // --- RANDOMIZE BUTTONS ---
-        const container = document.getElementById('calc-grid-container');
-        container.innerHTML = ''; // Clear previous
-        
-        // Shuffle a copy of the button definitions
-        const buttons = shuffle([...ENDINGS_DEF]);
-        
-        buttons.forEach(def => {
+        options.forEach(opt => {
             const btn = document.createElement('button');
-            btn.className = 'btn calc-btn';
-            btn.textContent = def.label;
-            btn.onclick = () => calcInput(def.id);
-            container.appendChild(btn);
+            btn.className = 'mc-btn';
+            btn.textContent = opt;
+            btn.onclick = () => checkInputMC(opt, correctAnswer);
+            grid.appendChild(btn);
         });
     }
 
-    function calcInput(endingId) {
-        const correctEnding = ENDINGS_KEY[state.calcPerson];
-        
-        if (endingId === correctEnding) {
-            let stem = state.calcVerb.stem;
-            if (state.calcVerb.conjType === 1 && state.calcPerson === 0) {
-                stem = stem.substring(0, stem.length - 1);
-            }
-            document.getElementById('calc-display-main').textContent = stem + endingId;
-            state.score++;
-            addXP(15);
-            document.getElementById('calc-feedback').innerHTML = "<span class='correct'>Correct! (+15 XP)</span>";
-            document.querySelectorAll('.calc-btn').forEach(b => b.disabled = true);
-            setTimeout(() => { state.index++; loadCalcRound(); }, 1000);
-
+    function checkInputMC(selected, correct) {
+        if (selected === correct) {
+            handleInputResult(true, correct);
         } else {
-            state.missed.push(state.calcVerb);
-            document.getElementById('calc-feedback').innerHTML = `<span class='incorrect'>Error.</span> Need: -${correctEnding}`;
-            document.querySelectorAll('.calc-btn').forEach(b => b.disabled = true);
-            setTimeout(() => { state.index++; loadCalcRound(); }, 1500);
+            handleInputResult(false, correct);
         }
     }
 
+    function checkInput() {
+        const input = document.getElementById('user-input').value.trim().toLowerCase();
+        const word = state.deck[state.index];
+        const displayMode = document.getElementById('display-mode').value;
+        const isGrammar = state.gameMode.startsWith('grammar') || word.displayType === 'grammar';
+        
+        let correctAns = "";
+        if (isGrammar) correctAns = word.eng;
+        else correctAns = displayMode === 'lat' ? word.lat : word.eng;
 
-    // ==========================================
-    // === ACTIVITY: SENTENCE BUILDER ===========
-    // ==========================================
-    function startBuilder() {
-        showScreen('build');
-        loadBuilderRound();
+        if(input === correctAns.toLowerCase()) {
+            handleInputResult(true, correctAns);
+        } else {
+            handleInputResult(false, correctAns);
+        }
     }
 
-    function loadBuilderRound() {
-        if (state.index >= state.pool.length) { endGame(); return; }
-        
-        const item = state.pool[state.index];
-        state.buildCurrent = item;
-        state.buildUserOrder = [];
+    function handleInputResult(isCorrect, correctAns) {
+        const word = state.deck[state.index];
+        handleResult(isCorrect, word);
 
-        document.getElementById('build-eng').textContent = item.eng;
-        document.getElementById('build-score').textContent = `Score: ${state.score}`;
+        const fb = document.getElementById('input-feedback');
+        if (isCorrect) {
+            fb.innerHTML = "<span class='correct'>Correct!</span>";
+            setTimeout(() => {
+                state.index++;
+                loadInputRound();
+            }, 800);
+        } else {
+            fb.innerHTML = `<span class='incorrect'>Expected: ${correctAns}</span>`;
+            setTimeout(() => {
+                state.index++;
+                loadInputRound();
+            }, 2000);
+        }
+    }
+
+    // --- BUILDER (SENTENCE) ---
+    function loadBuilderRound() {
+        if(state.index >= state.deck.length) { showGameOver(); return; }
+        
+        state.buildCurrent = state.deck[state.index];
+        state.buildUserOrder = [];
+        
+        document.getElementById('build-prompt').textContent = state.buildCurrent.eng;
+        document.getElementById('build-target').innerHTML = ""; 
         document.getElementById('build-feedback').textContent = "";
 
-        // Setup Source Words
-        const sourceBox = document.getElementById('build-source');
-        sourceBox.innerHTML = '';
-        const targetBox = document.getElementById('build-target');
-        targetBox.innerHTML = '';
-
-        const parts = shuffle([...item.lat]);
+        const scrambled = [...state.buildCurrent.lat].sort(() => Math.random() - 0.5);
+        const area = document.getElementById('build-area');
+        area.innerHTML = "";
         
-        parts.forEach(word => {
-            const fileDiv = document.createElement('div');
-            fileDiv.className = 'word-file';
-            fileDiv.id = `file-${word}`;
-            fileDiv.onclick = () => moveWordToDoc(word);
-            
-            const icon = document.createElement('div');
-            icon.className = 'file-icon';
-            const lbl = document.createElement('div');
-            lbl.className = 'file-label';
-            lbl.textContent = word;
-
-            fileDiv.appendChild(icon);
-            fileDiv.appendChild(lbl);
-            sourceBox.appendChild(fileDiv);
+        scrambled.forEach(w => {
+            const brick = document.createElement('div');
+            brick.className = 'word-brick';
+            brick.textContent = w;
+            brick.id = `file-${w}`;
+            brick.onclick = () => addWordToDoc(w);
+            area.appendChild(brick);
         });
     }
 
-    function moveWordToDoc(word) {
-        if (state.buildUserOrder.includes(word)) return; 
-
+    function addWordToDoc(word) {
+        if(state.buildUserOrder.includes(word)) return;
         state.buildUserOrder.push(word);
         
         const srcEl = document.getElementById(`file-${word}`);
@@ -1346,17 +1654,129 @@
         const isCorrect = JSON.stringify(state.buildUserOrder) === JSON.stringify(correct);
         
         if (isCorrect) {
-            state.score++;
             addXP(25);
-            document.getElementById('build-feedback').innerHTML = "<span class='correct'>Perfect! (+25 XP)</span>";
+            document.getElementById('build-feedback').innerHTML = "<span class='correct'>Perfect!</span>";
             setTimeout(() => { state.index++; loadBuilderRound(); }, 1000);
         } else {
-            state.missed.push(state.buildCurrent);
+            state.sessionMissed.push(state.buildCurrent);
             document.getElementById('build-feedback').innerHTML = `<span class='incorrect'>Try again!</span> Expected: ${correct.join(' ')}`;
             setTimeout(() => { state.index++; loadBuilderRound(); }, 2500);
         }
     }
 
+    function skipBuilder() {
+        state.sessionMissed.push(state.buildCurrent); 
+        state.index++;
+        loadBuilderRound();
+    }
+
+    // --- SORTER ---
+    function initSorter() {
+        const bucketContainer = document.getElementById('sorter-buckets');
+        bucketContainer.innerHTML = "";
+        
+        let categories = [];
+
+        if (state.sorterMode === 'gen') {
+            document.getElementById('sorter-title').textContent = "Sort by Gender";
+            categories = [
+                { id: 'm', label: 'Masc.' },
+                { id: 'f', label: 'Fem.' },
+                { id: 'n', label: 'Neut.' }
+            ];
+        } else {
+            document.getElementById('sorter-title').textContent = "Sort by Part of Speech";
+            categories = [
+                { id: 'n', label: 'Noun' },
+                { id: 'v', label: 'Verb' },
+                { id: 'adj', label: 'Adj.' },
+                { id: 'adv', label: 'Adv.' },
+                { id: 'prep', label: 'Prep.' },
+                { id: 'other', label: 'Other' } 
+            ];
+        }
+
+        categories.forEach(cat => {
+            const b = document.createElement('div');
+            b.className = 'bucket';
+            b.innerHTML = `<h3>${cat.label}</h3>`;
+            b.onclick = () => checkSorter(cat.id);
+            b.style.width = "30%"; 
+            bucketContainer.appendChild(b);
+        });
+
+        loadSorterRound();
+    }
+
+    function loadSorterRound() {
+        if(state.index >= state.deck.length) { showGameOver(); return; }
+        const word = state.deck[state.index];
+        document.getElementById('sorter-word').textContent = word.lat;
+        document.getElementById('sorter-feedback').textContent = "";
+    }
+
+    function checkSorter(selectedId) {
+        const word = state.deck[state.index];
+        let correctId = "";
+
+        if (state.sorterMode === 'gen') {
+            correctId = word.gen;
+        } else {
+            if (['n','v','adj', 'adv', 'prep'].includes(word.pos)) correctId = word.pos;
+            else correctId = 'other';
+        }
+
+        if (selectedId === correctId) {
+            handleResult(true, word);
+            const fb = document.getElementById('sorter-feedback');
+            fb.innerHTML = "<span class='correct'>Good!</span>";
+            setTimeout(() => { state.index++; loadSorterRound(); }, 500);
+        } else {
+            handleResult(false, word);
+            const fb = document.getElementById('sorter-feedback');
+            fb.innerHTML = "<span class='incorrect'>Oops!</span>";
+            setTimeout(() => { fb.textContent = ""; }, 800);
+        }
+    }
+
+    // --- UTILS ---
+    function addXP(amount) {
+        state.xp += amount;
+        if(state.xp > state.level * 100) {
+            state.level++;
+            alert("LEVEL UP! You are now Level " + state.level);
+        }
+        updateStats();
+        saveXP();
+    }
+
+    function updateStats() {
+        document.getElementById('xp-display').textContent = state.xp;
+        let title = "Novice";
+        if(state.level > 2) title = "Discipulus";
+        if(state.level > 5) title = "Magister";
+        if(state.level > 10) title = "Imperator";
+        document.getElementById('level-display').textContent = `${title} (Lvl ${state.level})`;
+    }
+
+    function saveXP() {
+        localStorage.setItem('maclatin_xp', state.xp);
+        localStorage.setItem('maclatin_lvl', state.level);
+    }
+
+    function loadXP() {
+        const savedXP = localStorage.getItem('maclatin_xp');
+        const savedLvl = localStorage.getItem('maclatin_lvl');
+        if(savedXP) state.xp = parseInt(savedXP);
+        if(savedLvl) state.level = parseInt(savedLvl);
+        updateStats();
+    }
+
+    document.getElementById('user-input').addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') checkInput();
+    });
+
 </script>
+
 </body>
 </html>
